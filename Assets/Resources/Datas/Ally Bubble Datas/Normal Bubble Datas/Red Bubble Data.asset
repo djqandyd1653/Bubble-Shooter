@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bubbleName: Red Bubble
   type: 0
-  calWidth: 98.264595
+  calWidth: 98.19419
   calHeight: 89.99999
   bubbleColor: 0
   speed: 5000

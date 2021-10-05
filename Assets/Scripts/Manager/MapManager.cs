@@ -160,13 +160,46 @@ public class MapManager : MonoBehaviour
             return;
         }
 
-        while(removeQueue.Count != 0)
+        //int lastRow = 0;
+        //int lastColumn = 0;
+
+        while (removeQueue.Count != 0)
         {
             GameObject currentRemoveBubble = removeQueue.Dequeue();
             Bubble temp = currentRemoveBubble.GetComponent<Bubble>();
+
+            //if(removeQueue.Count == 0)
+            //{
+            //    lastRow = temp.Row;
+            //    lastColumn = temp.Column;
+            //}
+
             mapArray[temp.Row, temp.Column] = null;
             EventManager.Instance.OnGiveBubble(currentRemoveBubble);
         }
+
+        // 버블 제거된 후 구슬 떨어질 구슬 탐색
+        //if (lastRow % 2 == 0)
+        //{
+        //    // row - 1, column - 1
+        //    if(lastRow - 1 >= 0 && lastColumn - 1 >= 0)
+        //    {
+        //        if(mapArray[lastRow - 1, lastColumn - 1] == null)
+        //        {
+        //            return;
+        //        }
+        //    }
+
+        //    // row, column - 1
+        //    if(lastColumn - 1 >= 0)
+        //    {
+
+        //    }
+        //}
+        //else
+        //{
+
+        //}
     }
 
     private void CalculateEvenRow(GameObject _bubble)

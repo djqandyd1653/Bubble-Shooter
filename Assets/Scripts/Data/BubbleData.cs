@@ -42,11 +42,11 @@ public class BubbleData : ScriptableObject
 
     [SerializeField]
     protected float calWidth = 0;
-    public float CalWidth { get { return calWidth; } set { if(calWidth == 0) calWidth = value; } }
+    public float CalWidth { get { return calWidth; } set { calWidth = value; } }
 
     [SerializeField]
     protected float calHeight = 0;
-    public float CalHeight { get { return calHeight; } set { if(calHeight == 0) calHeight = value; } }
+    public float CalHeight { get { return calHeight; } set { calHeight = value; } }
 
     [SerializeField]
     protected EnumBubbleColor bubbleColor;

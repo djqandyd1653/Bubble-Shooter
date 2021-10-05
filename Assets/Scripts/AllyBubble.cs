@@ -25,7 +25,9 @@ public class AllyBubble : Bubble
 
     void Update()
     {
-        bubbleStateFunction?.Invoke();
+        //bubbleStateFunction?.Invoke();
+        Move();
+        CheckCollisionToWall();
 
         if (state == AllyBubbleData.BubbleState.FIRE)
         {
@@ -37,13 +39,14 @@ public class AllyBubble : Bubble
                 }
 
                 transform.position = EventManager.Instance.OnSetBubblePosition(this.gameObject);
-                ChangeState(AllyBubbleData.BubbleState.CONTACT);
+                //ChangeState(AllyBubbleData.BubbleState.CONTACT);
+                state = AllyBubbleData.BubbleState.CONTACT;
             }
         }
 
         if(state == AllyBubbleData.BubbleState.CONTACT)
         {
-            
+            EventManager.Instance.OnRemoveBubble(this.gameObject);
         }
     }
 
@@ -60,7 +63,8 @@ public class AllyBubble : Bubble
                 }
 
                 transform.position = EventManager.Instance.OnSetBubblePosition(this.gameObject);
-                ChangeState(AllyBubbleData.BubbleState.CONTACT);
+                //ChangeState(AllyBubbleData.BubbleState.CONTACT);
+                state = AllyBubbleData.BubbleState.CONTACT;
             }
         }
     }
@@ -120,37 +124,38 @@ public class AllyBubble : Bubble
         isCheck = false;
     }
 
-    private void ChangeState(AllyBubbleData.BubbleState newStateNumber)
-    {
-        switch(newStateNumber)
-        {
-            case AllyBubbleData.BubbleState.CONTACT:
-                bubbleStateFunction -= Move;
-                bubbleStateFunction -= CheckCollisionToWall;
-                bubbleStateFunction += RemoveBubble;
-                break;
-            case AllyBubbleData.BubbleState.FIRE:
-                //bubbleStateFunction
-                bubbleStateFunction += Move;
-                bubbleStateFunction += CheckCollisionToWall;
-                break;
-            case AllyBubbleData.BubbleState.REMOVE:
-                bubbleStateFunction -= RemoveBubble;
-                bubbleStateFunction += InitBubble;
-                break;
-            case AllyBubbleData.BubbleState.WAITING:
-                bubbleStateFunction -= InitBubble;
-                break;
-            default:
-                Debug.LogError("Switch Case Index Error(AllyBubble.cs, Line: 130)");
-                break;
-        }
-    }
+    //private void ChangeState(AllyBubbleData.BubbleState newStateNumber)
+    //{
+    //    switch(newStateNumber)
+    //    {
+    //        case AllyBubbleData.BubbleState.CONTACT:
+    //            bubbleStateFunction -= Move;
+    //            bubbleStateFunction -= CheckCollisionToWall;
+    //            bubbleStateFunction += RemoveBubble;
+    //            break;
+    //        case AllyBubbleData.BubbleState.FIRE:
+    //            //bubbleStateFunction
+    //            bubbleStateFunction += Move;
+    //            bubbleStateFunction += CheckCollisionToWall;
+    //            break;
+    //        case AllyBubbleData.BubbleState.REMOVE:
+    //            bubbleStateFunction -= RemoveBubble;
+    //            bubbleStateFunction += InitBubble;
+    //            break;
+    //        case AllyBubbleData.BubbleState.WAITING:
+    //            bubbleStateFunction -= InitBubble;
+    //            break;
+    //        default:
+    //            Debug.LogError("Switch Case Index Error(AllyBubble.cs, Line: 130)");
+    //            break;
+    //    }
+    //}
 
     // test
     public void ChangeStateToFire(Vector3 _dir)
     {
-        ChangeState(AllyBubbleData.BubbleState.FIRE);
+        state = AllyBubbleData.BubbleState.FIRE;
+        //ChangeState(AllyBubbleData.BubbleState.FIRE);
         dir = _dir;
     }
 
