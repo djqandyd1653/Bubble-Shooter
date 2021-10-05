@@ -710,7 +710,7 @@ GameObject:
   - component: {fileID: 704296190}
   - component: {fileID: 704296189}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: MapManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -730,7 +730,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   heightDifferent: 0
   widthDifferent: 0
-  test: {fileID: 11400000, guid: e236b58ab68b5bb4887b49a107457232, type: 2}
+  halfWidth: 0
+  halfHeight: 0
+  bubbleData: {fileID: 11400000, guid: 1f122c797684b5e4cbf094882ca93676, type: 2}
 --- !u!4 &704296190
 Transform:
   m_ObjectHideFlags: 0

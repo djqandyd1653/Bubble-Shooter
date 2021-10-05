@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class BubbleData : ScriptableObject
 {
-    public enum BubbleType
+    public enum EnumBubbleType
     {
         NORMAL,             // 기본
         INVISIBLE,          // 투명
@@ -19,15 +19,36 @@ public class BubbleData : ScriptableObject
         ALL_HORIZONTAL      // 가로 한줄 제거
     }
 
-    [SerializeField]
-    private BubbleType type;
-    public BubbleType Type { get { return type; } }
+    public enum EnumBubbleColor
+    {
+        RED,
+        ORANGE,
+        YELLOW,
+        GREEN,
+        BLUE,
+        SKY,
+        PURPLE,
+        PINK,
+        SPECIAL
+    }
 
     [SerializeField]
-    private float calWidth = 0;
+    protected string bubbleName;
+    public string BubbleName { get { return BubbleName; } }
+
+    [SerializeField]
+    protected EnumBubbleType type;
+    public EnumBubbleType Type { get { return type; } }
+
+    [SerializeField]
+    protected float calWidth = 0;
     public float CalWidth { get { return calWidth; } set { if(calWidth == 0) calWidth = value; } }
 
     [SerializeField]
-    private float calHeight = 0;
+    protected float calHeight = 0;
     public float CalHeight { get { return calHeight; } set { if(calHeight == 0) calHeight = value; } }
+
+    [SerializeField]
+    protected EnumBubbleColor bubbleColor;
+    public EnumBubbleColor BubbleColor { get { return bubbleColor; } }
 }

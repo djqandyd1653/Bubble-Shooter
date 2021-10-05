@@ -13,10 +13,13 @@ public class EventManager : MonoSingleton<EventManager>
     public event Action<Vector3, Vector3> setLinePosition2;
     public event Action<Vector3, Vector3, Vector3> setLinePosition3;
 
-    // 러안 커브 갯수 설정하기
+    // 라인 커브 갯수 설정하기
     public event Action<int> setCurveCount;
 
-    public event Func<Vector3, Vector3> setBubblePosition;
+    public event Func<GameObject, Vector3> setBubblePosition;
+
+    // 버블 제거
+    public event Action<GameObject> removeBubble;
 
     public GameObject OnGetBubble(string key, Vector3 position)
     {
@@ -43,8 +46,13 @@ public class EventManager : MonoSingleton<EventManager>
         setCurveCount?.Invoke(curveCount);
     }
 
-    public Vector3 OnSetBubblePosition(Vector3 oldPosition)
+    public Vector3 OnSetBubblePosition(GameObject bubble)
     {
-        return setBubblePosition.Invoke(oldPosition);
+        return setBubblePosition.Invoke(bubble);
+    }
+
+    public void OnRemoveBubble(GameObject bubble)
+    {
+        removeBubble?.Invoke(bubble);
     }
 }

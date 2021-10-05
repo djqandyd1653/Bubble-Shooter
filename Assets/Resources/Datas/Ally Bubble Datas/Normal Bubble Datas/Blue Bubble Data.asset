@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c7c9758b9ec0138488b778abf1656a90, type: 3}
+  m_Name: Blue Bubble Data
+  m_EditorClassIdentifier: 
+  bubbleName: Blue Bubble
+  type: 0
+  calWidth: 98.264595
+  calHeight: 89.99999
+  bubbleColor: 4
+  speed: 5000

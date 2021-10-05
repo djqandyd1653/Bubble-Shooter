@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameManager : MonoSingleton<GameManager>
 {
@@ -43,13 +44,13 @@ public class GameManager : MonoSingleton<GameManager>
         windowRightUpPoint = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, 0));
 
         width = windowRightUpPoint.x - windowLeftDownPoint.x;
-        height = windowRightUpPoint.y - windowLeftDownPoint.y;
+        height = windowRightUpPoint.y - windowLeftDownPoint.y - 660; // 660대신 UI 이미지 사이즈 총합 가져오기
 
         calWidth = width / 11;
-        calHeight = height / 23;
+        calHeight = height / 14;  // 원래 15지만 구슬이 겹치면서 생기는 공백때문에 16개가 박힌다. 임의로 14로 설정했지만 정확한 수치를 구해야한다.
         #endregion
-        InitBubbleSize();
         InitTouchArea();
+        InitBubbleSize();
     }
 
     // 터치 영역 초기화
@@ -76,10 +77,11 @@ public class GameManager : MonoSingleton<GameManager>
             Vector3 size = bubble.GetComponent<SpriteRenderer>().bounds.size;
 
             bubble.transform.localScale = new Vector3(calWidth / size.x, calHeight / size.y, 1);
-        }
 
-        // 모든 버블의 크기가 같아서 임의의 버블의 크기로 지정
-        bubbles[0].GetComponent<AllyBubble>().data.CalWidth = calWidth;
-        bubbles[0].GetComponent<AllyBubble>().data.CalHeight = calHeight;
+            // 버블의 크기 AllyBubbleData에 지정
+            AllyBubbleData allyBubbleData = bubble.GetComponent<AllyBubble>().data;
+            allyBubbleData.CalWidth = calWidth;
+            allyBubbleData.CalHeight = calHeight;
+        }
     }
 }

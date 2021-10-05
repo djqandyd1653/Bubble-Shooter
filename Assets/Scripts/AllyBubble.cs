@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class AllyBubble : Bubble
 {
@@ -14,6 +15,8 @@ public class AllyBubble : Bubble
     private Vector3 dir = Vector3.zero;
     private float destinationPositionX = 0;
 
+    private event Action bubbleStateFunction;
+
     protected override void Start()
     {
         base.Start();
@@ -22,8 +25,8 @@ public class AllyBubble : Bubble
 
     void Update()
     {
-        Move();
-        CheckCollisionToWall();
+        bubbleStateFunction?.Invoke();
+
         if (state == AllyBubbleData.BubbleState.FIRE)
         {
             if (transform.position.y + data.CalHeight * 0.5f >= GameManager.Instance.TouchArea.height)
@@ -33,13 +36,18 @@ public class AllyBubble : Bubble
                     return;
                 }
 
-                transform.position = EventManager.Instance.OnSetBubblePosition(transform.position);
-                state = AllyBubbleData.BubbleState.CONTACT;
+                transform.position = EventManager.Instance.OnSetBubblePosition(this.gameObject);
+                ChangeState(AllyBubbleData.BubbleState.CONTACT);
             }
+        }
+
+        if(state == AllyBubbleData.BubbleState.CONTACT)
+        {
+            
         }
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    private void OnTriggerEnter(Collider collision)
     {
         // 터치영역 높이값과 비교해서 CONTACT상태로 변경
         if (state == AllyBubbleData.BubbleState.FIRE)
@@ -51,22 +59,16 @@ public class AllyBubble : Bubble
                     return;
                 }
 
-                transform.position = EventManager.Instance.OnSetBubblePosition(transform.position);
-                state = AllyBubbleData.BubbleState.CONTACT;
+                transform.position = EventManager.Instance.OnSetBubblePosition(this.gameObject);
+                ChangeState(AllyBubbleData.BubbleState.CONTACT);
             }
         }
     }
-
-    //private void OnCollisionEnter2D(Collision2D collision)
-    //{
-
-    //}
 
     private void Move()
     {
         if (state == AllyBubbleData.BubbleState.FIRE)
         {
-            //transform.position += dir * data.Speed * Time.smoothDeltaTime;
             rigid.MovePosition(transform.position + dir * data.Speed * Time.smoothDeltaTime);
         }
     }
@@ -104,10 +106,56 @@ public class AllyBubble : Bubble
         dir = tempVector;
     }
 
+    private void RemoveBubble()
+    {
+        EventManager.Instance.OnRemoveBubble(this.gameObject);
+    }
+
+
+    // 버블이 오브젝트 풀로 돌아갈때 값 초기화
+    private void InitBubble()
+    {
+        row = 0;
+        column = 0;
+        isCheck = false;
+    }
+
+    private void ChangeState(AllyBubbleData.BubbleState newStateNumber)
+    {
+        switch(newStateNumber)
+        {
+            case AllyBubbleData.BubbleState.CONTACT:
+                bubbleStateFunction -= Move;
+                bubbleStateFunction -= CheckCollisionToWall;
+                bubbleStateFunction += RemoveBubble;
+                break;
+            case AllyBubbleData.BubbleState.FIRE:
+                //bubbleStateFunction
+                bubbleStateFunction += Move;
+                bubbleStateFunction += CheckCollisionToWall;
+                break;
+            case AllyBubbleData.BubbleState.REMOVE:
+                bubbleStateFunction -= RemoveBubble;
+                bubbleStateFunction += InitBubble;
+                break;
+            case AllyBubbleData.BubbleState.WAITING:
+                bubbleStateFunction -= InitBubble;
+                break;
+            default:
+                Debug.LogError("Switch Case Index Error(AllyBubble.cs, Line: 130)");
+                break;
+        }
+    }
+
     // test
     public void ChangeStateToFire(Vector3 _dir)
     {
-        state = AllyBubbleData.BubbleState.FIRE;
+        ChangeState(AllyBubbleData.BubbleState.FIRE);
         dir = _dir;
+    }
+
+    public void ChangeStateToWaiting()
+    {
+        state = AllyBubbleData.BubbleState.WAITING;
     }
 }
