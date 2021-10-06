@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bubbleName: Pink Bubble
   type: 0
-  calWidth: 98.19419
+  calWidth: 98.264595
   calHeight: 89.99999
   bubbleColor: 7
+  dropSpeed: 3000
   speed: 5000

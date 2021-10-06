@@ -48,6 +48,17 @@ public class AllyBubble : Bubble
         {
             EventManager.Instance.OnRemoveBubble(this.gameObject);
         }
+
+        if(state == AllyBubbleData.BubbleState.DROP)
+        {
+            rigid.MovePosition(transform.position + Vector3.down * data.DropSpeed * Time.smoothDeltaTime);
+
+            if (transform.position.y < GameManager.Instance.TouchArea.y)
+            {
+                state = AllyBubbleData.BubbleState.WAITING;
+                EventManager.Instance.OnGiveBubble(this.gameObject);
+            }
+        }
     }
 
     private void OnTriggerEnter(Collider collision)
@@ -117,7 +128,7 @@ public class AllyBubble : Bubble
 
 
     // 버블이 오브젝트 풀로 돌아갈때 값 초기화
-    private void InitBubble()
+    public void InitBubble()
     {
         row = 0;
         column = 0;
@@ -162,5 +173,11 @@ public class AllyBubble : Bubble
     public void ChangeStateToWaiting()
     {
         state = AllyBubbleData.BubbleState.WAITING;
+    }
+
+    public void ChangeStateToDrop()
+    {
+        state = AllyBubbleData.BubbleState.DROP;
+        InitBubble();
     }
 }

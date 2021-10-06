@@ -23,8 +23,14 @@ public class MapManager : MonoBehaviour
     [SerializeField]
     private BubbleData bubbleData = null;
 
+    // 탐색 큐
     Queue<GameObject> searchQueue = new Queue<GameObject>();
+    // 버블 제거 큐
     Queue<GameObject> removeQueue = new Queue<GameObject>();
+    // 탐색 스택
+    Stack<GameObject> searchStack = new Stack<GameObject>();
+    // 버블 낙하 스택
+    Stack<GameObject> dropStack = new Stack<GameObject>();
 
     void Start()
     {
@@ -137,11 +143,11 @@ public class MapManager : MonoBehaviour
 
             if (currentSearchBubble.GetComponent<Bubble>().Row % 2 == 0)
             {
-                CalculateEvenRow(currentSearchBubble);
+                CalculateEvenRow(currentSearchBubble, true);
             }
             else
             {
-                CalculateOddRow(currentSearchBubble);
+                CalculateOddRow(currentSearchBubble, true);
             }
         }
 
@@ -160,138 +166,206 @@ public class MapManager : MonoBehaviour
             return;
         }
 
-        //int lastRow = 0;
-        //int lastColumn = 0;
-
         while (removeQueue.Count != 0)
         {
-            GameObject currentRemoveBubble = removeQueue.Dequeue();
-            Bubble temp = currentRemoveBubble.GetComponent<Bubble>();
-
-            //if(removeQueue.Count == 0)
-            //{
-            //    lastRow = temp.Row;
-            //    lastColumn = temp.Column;
-            //}
-
+            var currentRemoveBubble = removeQueue.Dequeue();
+            DropBubbles(currentRemoveBubble);
+            AllyBubble temp = currentRemoveBubble.GetComponent<AllyBubble>();
             mapArray[temp.Row, temp.Column] = null;
+            temp.ChangeStateToWaiting();
+            temp.InitBubble();
             EventManager.Instance.OnGiveBubble(currentRemoveBubble);
         }
 
-        // 버블 제거된 후 구슬 떨어질 구슬 탐색
-        //if (lastRow % 2 == 0)
-        //{
-        //    // row - 1, column - 1
-        //    if(lastRow - 1 >= 0 && lastColumn - 1 >= 0)
-        //    {
-        //        if(mapArray[lastRow - 1, lastColumn - 1] == null)
-        //        {
-        //            return;
-        //        }
-        //    }
+        for(int i = 0; i < GameManager.Instance.VerticalBubbleCount; i++)
+        {
+            for (int j = 0; j < GameManager.Instance.HorizontalBubbleCount; j++)
+            {
+                if(mapArray[i, j] == null)
+                {
+                    continue;
+                }
 
-        //    // row, column - 1
-        //    if(lastColumn - 1 >= 0)
-        //    {
-
-        //    }
-        //}
-        //else
-        //{
-
-        //}
+                mapArray[i, j].GetComponent<Bubble>().IsCheck = false;
+            }
+        }
     }
 
-    private void CalculateEvenRow(GameObject _bubble)
+    private void CalculateEvenRow(GameObject _bubble, bool isSearchRemoveBubble)
     {
         AllyBubble bubble = _bubble.GetComponent<AllyBubble>();
         int row = bubble.Row;
         int column = bubble.Column;
         int colorNum = (int)bubble.data.BubbleColor;
 
-        // row - 1, column - 1 검사
-        if (row - 1 >= 0 && column - 1 >= 0)
-        {
-            SearchSameColorBubble(row - 1, column - 1, colorNum);
-        }
-
-        // row - 1, column - 0 검사
-        if (row - 1 >= 0)
-        {
-            SearchSameColorBubble(row - 1, column, colorNum);
-        }
-
-        // row - 0, column - 1 검사
-        if (column - 1 >= 0)
-        {
-            SearchSameColorBubble(row, column - 1, colorNum);
-        }
-
-        // row - 0, column + 1 검사
-        if (column + 1 < maxColumn)
-        {
-            SearchSameColorBubble(row, column + 1, colorNum);
-        }
-
         // row + 1, column - 1 검사
-        if (row + 1 < maxRow)
+        if (row + 1 < maxRow && column - 1 >= 0)
         {
-            SearchSameColorBubble(row + 1, column, colorNum);
+            if (isSearchRemoveBubble)
+            {
+                SearchBubble(row + 1, column - 1, colorNum);
+            }
+            else
+            {
+                SearchBubble(row + 1, column - 1);
+            }
         }
 
         // row + 1, column - 0 검사
         if (row + 1 < maxRow)
         {
-            SearchSameColorBubble(row + 1, column, colorNum);
+            if (isSearchRemoveBubble)
+            {
+                SearchBubble(row + 1, column, colorNum);
+            }
+            else
+            {
+                SearchBubble(row + 1, column);
+            }
         }
-    }
 
-    private void CalculateOddRow(GameObject _bubble)
-    {
-        AllyBubble bubble = _bubble.GetComponent<AllyBubble>();
-        int row = bubble.Row;
-        int column = bubble.Column;
-        int colorNum = (int)bubble.data.BubbleColor;
+        // row - 0, column + 1 검사
+        if (column + 1 < maxColumn)
+        {
+            if (isSearchRemoveBubble)
+            {
+                SearchBubble(row, column + 1, colorNum);
+            }
+            else
+            {
+                SearchBubble(row, column + 1);
+            }
+        }
+
+        // row - 0, column - 1 검사
+        if (column - 1 >= 0)
+        {
+            if (isSearchRemoveBubble)
+            {
+                SearchBubble(row, column - 1, colorNum);
+            }
+            else
+            {
+                SearchBubble(row, column - 1);
+            }
+        }
+
+        // row - 1, column - 1 검사
+        if (row - 1 >= 0 && column - 1 >= 0)
+        {
+            if (isSearchRemoveBubble)
+            {
+                SearchBubble(row - 1, column - 1, colorNum);
+            }
+            else
+            {
+                SearchBubble(row - 1, column - 1);
+            }
+        }
 
         // row - 1, column - 0 검사
         if (row - 1 >= 0)
         {
-            SearchSameColorBubble(row - 1, column, colorNum);
+            if (isSearchRemoveBubble)
+            {
+                SearchBubble(row - 1, column, colorNum);
+            }
+            else
+            {
+                SearchBubble(row - 1, column);
+            }
+        }
+    }
+
+    private void CalculateOddRow(GameObject _bubble, bool isSearchRemoveBubble)
+    {
+        AllyBubble bubble = _bubble.GetComponent<AllyBubble>();
+        int row = bubble.Row;
+        int column = bubble.Column;
+
+        int colorNum = (int)bubble.data.BubbleColor;
+
+        // row + 1, column + 1 검사
+        if (row + 1 < maxRow && column + 1 < maxColumn)
+        {
+            if (isSearchRemoveBubble)
+            {
+                SearchBubble(row + 1, column + 1, colorNum);
+            }
+            else
+            {
+                SearchBubble(row + 1, column + 1);
+            }
+        }
+
+        // row + 1, column - 0 검사
+        if (row + 1 < maxRow)
+        {
+            if (isSearchRemoveBubble)
+            {
+                SearchBubble(row + 1, column, colorNum);
+            }
+            else
+            {
+                SearchBubble(row + 1, column);
+            }
+        }
+
+        // row - 0, column + 1 검사
+        if (column + 1 < maxColumn)
+        {
+            if (isSearchRemoveBubble)
+            {
+                SearchBubble(row, column + 1, colorNum);
+            }
+            else
+            {
+                SearchBubble(row, column + 1);
+            }
+        }
+
+        // row - 0, column - 1 검사
+        if (column - 1 >= 0)
+        {
+            if (isSearchRemoveBubble)
+            {
+                SearchBubble(row, column - 1, colorNum);
+            }
+            else
+            {
+                SearchBubble(row, column - 1);
+            }
         }
 
         // row - 1, column + 1 검사
         if (row - 1 >= 0 && column + 1 < maxColumn)
         {
-            SearchSameColorBubble(row - 1, column + 1, colorNum);
+            if (isSearchRemoveBubble)
+            {
+                SearchBubble(row - 1, column + 1, colorNum);
+            }
+            else
+            {
+                SearchBubble(row - 1, column + 1);
+            }
         }
 
-        // row - 0, column - 1 검사
-        if (column - 1 >= 0)
+        // row - 1, column - 0 검사
+        if (row - 1 >= 0)
         {
-            SearchSameColorBubble(row, column - 1, colorNum);
-        }
-
-        // row - 0, column + 1 검사
-        if (column + 1 < maxColumn)
-        {
-            SearchSameColorBubble(row, column + 1, colorNum);
-        }
-
-        // row + 1, column - 0 검사
-        if (row + 1 < maxRow)
-        {
-            SearchSameColorBubble(row + 1, column, colorNum);
-        }
-
-        // row + 1, column + 1 검사
-        if (row + 1 < maxRow && column + 1 < maxColumn)
-        {
-            SearchSameColorBubble(row + 1, column + 1, colorNum);
+            if (isSearchRemoveBubble)
+            {
+                SearchBubble(row - 1, column, colorNum);
+            }
+            else
+            {
+                SearchBubble(row - 1, column);
+            }
         }
     }
 
     // 같은 색 구슬 탐색
-    private void SearchSameColorBubble(int row, int column, int colorNum)
+    private void SearchBubble(int row, int column, int colorNum)
     {
         if(mapArray[row, column] == null)
         {
@@ -299,6 +373,7 @@ public class MapManager : MonoBehaviour
         }
 
         AllyBubble checkBubble = mapArray[row, column].GetComponent<AllyBubble>();
+        int _colorNum = (int)checkBubble.data.BubbleColor;
 
         // 같은 색인지 비교함
         if ((int)checkBubble.data.BubbleColor == colorNum)
@@ -312,6 +387,78 @@ public class MapManager : MonoBehaviour
             }
         }
     }
+
+    private void SearchBubble(int row, int column)
+    {
+        if (mapArray[row, column] == null)
+        {
+            return;
+        }
+
+        AllyBubble checkBubble = mapArray[row, column].GetComponent<AllyBubble>();
+
+        // 체크한적 없으면
+        if (!checkBubble.IsCheck)
+        {
+            checkBubble.IsCheck = true;
+            
+            if (row == 0)
+            {
+                while (dropStack.Count != 0)
+                {
+                    if (GameObject.ReferenceEquals(searchStack.Peek(), dropStack.Peek()))
+                    {
+                        searchStack.Pop().GetComponent<Bubble>().IsCheck = false;
+                    }
+
+                    dropStack.Pop();
+                }
+
+                return;
+            }
+
+            dropStack.Push(checkBubble.gameObject);
+            searchStack.Push(checkBubble.gameObject);
+        }
+    }
+
+    private void DropBubbles(GameObject bubble)
+    {
+        searchStack.Clear();
+        dropStack.Clear();
+
+        // Remove Bubble
+        searchStack.Push(bubble);
+
+        // 탐색 및 dropStack에 저장
+        while(searchStack.Count != 0)
+        {
+            var currentSearchBubble = searchStack.Pop();
+
+            // 주변 버블 탐색
+            if(currentSearchBubble.GetComponent<Bubble>().Row % 2 == 0)
+            {
+                CalculateEvenRow(currentSearchBubble, false);
+            }
+            else
+            {
+                CalculateOddRow(currentSearchBubble, false);
+            }
+        }
+
+        if(dropStack.Count == 0)
+        {
+            return;
+        }
+
+        while(dropStack.Count != 0)
+        {
+            var currentDropBubble = dropStack.Pop().GetComponent<AllyBubble>();
+            currentDropBubble.ChangeStateToDrop();
+            mapArray[currentDropBubble.Row, currentDropBubble.Column] = null;
+        }
+    }
+
 
     // test Function
     private void PrintArray()

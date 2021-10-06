@@ -10,7 +10,8 @@ public class AllyBubbleData : BubbleData
         WAITING,            // 대기
         FIRE,               // 발사
         CONTACT,            // 접촉
-        REMOVE              // 제거
+        REMOVE,             // 제거
+        DROP                // 낙하
     }
     
     [SerializeField]

@@ -29,7 +29,7 @@ public class BubbleData : ScriptableObject
         SKY,
         PURPLE,
         PINK,
-        SPECIAL
+        SPECIAL,   
     }
 
     [SerializeField]
@@ -51,4 +51,8 @@ public class BubbleData : ScriptableObject
     [SerializeField]
     protected EnumBubbleColor bubbleColor;
     public EnumBubbleColor BubbleColor { get { return bubbleColor; } }
+
+    [SerializeField]
+    protected float dropSpeed = 0;
+    public float DropSpeed { get { return dropSpeed; } }
 }
