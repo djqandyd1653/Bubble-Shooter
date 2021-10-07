@@ -23,6 +23,8 @@ public class MapManager : MonoBehaviour
     [SerializeField]
     private BubbleData bubbleData = null;
 
+    private int num = -1;
+
     // 탐색 큐
     Queue<GameObject> searchQueue = new Queue<GameObject>();
     // 버블 제거 큐
@@ -207,8 +209,7 @@ public class MapManager : MonoBehaviour
             }
             else
             {
-                SearchBubble(row + 1, column - 1);
-            }
+                SearchBubble(row + 1, column - 1);            }
         }
 
         // row + 1, column - 0 검사
@@ -220,21 +221,7 @@ public class MapManager : MonoBehaviour
             }
             else
             {
-                SearchBubble(row + 1, column);
-            }
-        }
-
-        // row - 0, column + 1 검사
-        if (column + 1 < maxColumn)
-        {
-            if (isSearchRemoveBubble)
-            {
-                SearchBubble(row, column + 1, colorNum);
-            }
-            else
-            {
-                SearchBubble(row, column + 1);
-            }
+                SearchBubble(row + 1, column);            }
         }
 
         // row - 0, column - 1 검사
@@ -246,8 +233,19 @@ public class MapManager : MonoBehaviour
             }
             else
             {
-                SearchBubble(row, column - 1);
+                SearchBubble(row, column - 1);            }
+        }
+
+        // row - 0, column + 1 검사
+        if (column + 1 < maxColumn)
+        {
+            if (isSearchRemoveBubble)
+            {
+                SearchBubble(row, column + 1, colorNum);
             }
+            else
+            {
+                SearchBubble(row, column + 1);            }
         }
 
         // row - 1, column - 1 검사
@@ -285,19 +283,6 @@ public class MapManager : MonoBehaviour
 
         int colorNum = (int)bubble.data.BubbleColor;
 
-        // row + 1, column + 1 검사
-        if (row + 1 < maxRow && column + 1 < maxColumn)
-        {
-            if (isSearchRemoveBubble)
-            {
-                SearchBubble(row + 1, column + 1, colorNum);
-            }
-            else
-            {
-                SearchBubble(row + 1, column + 1);
-            }
-        }
-
         // row + 1, column - 0 검사
         if (row + 1 < maxRow)
         {
@@ -308,6 +293,31 @@ public class MapManager : MonoBehaviour
             else
             {
                 SearchBubble(row + 1, column);
+            }
+        }
+
+        // row + 1, column + 1 검사
+        if (row + 1 < maxRow && column + 1 < maxColumn)
+        {
+            if (isSearchRemoveBubble)
+            {
+                SearchBubble(row + 1, column + 1, colorNum);
+            }
+            else
+            {
+                SearchBubble(row + 1, column + 1);            }
+        }
+
+        // row - 0, column - 1 검사
+        if (column - 1 >= 0)
+        {
+            if (isSearchRemoveBubble)
+            {
+                SearchBubble(row, column - 1, colorNum);
+            }
+            else
+            {
+                SearchBubble(row, column - 1);
             }
         }
 
@@ -324,16 +334,16 @@ public class MapManager : MonoBehaviour
             }
         }
 
-        // row - 0, column - 1 검사
-        if (column - 1 >= 0)
+        // row - 1, column - 0 검사
+        if (row - 1 >= 0)
         {
             if (isSearchRemoveBubble)
             {
-                SearchBubble(row, column - 1, colorNum);
+                SearchBubble(row - 1, column, colorNum);
             }
             else
             {
-                SearchBubble(row, column - 1);
+                SearchBubble(row - 1, column);
             }
         }
 
@@ -347,19 +357,6 @@ public class MapManager : MonoBehaviour
             else
             {
                 SearchBubble(row - 1, column + 1);
-            }
-        }
-
-        // row - 1, column - 0 검사
-        if (row - 1 >= 0)
-        {
-            if (isSearchRemoveBubble)
-            {
-                SearchBubble(row - 1, column, colorNum);
-            }
-            else
-            {
-                SearchBubble(row - 1, column);
             }
         }
     }
@@ -399,25 +396,27 @@ public class MapManager : MonoBehaviour
 
         // 체크한적 없으면
         if (!checkBubble.IsCheck)
-        {
-            checkBubble.IsCheck = true;
-            
+        {   
             if (row == 0)
             {
+                while(num >= 0 && searchStack.Count > num)
+                {
+                    searchStack.Pop();
+                }
+
+                if(num > 0)
+                {
+                    num--;
+                }
+
                 while (dropStack.Count != 0)
                 {
-                    if (GameObject.ReferenceEquals(searchStack.Peek(), dropStack.Peek()))
-                    {
-                        searchStack.Pop().GetComponent<Bubble>().IsCheck = false;
-                    }
-
-                    dropStack.Pop();
+                    dropStack.Pop().GetComponent<Bubble>().IsCheck = false;
                 }
 
                 return;
             }
 
-            dropStack.Push(checkBubble.gameObject);
             searchStack.Push(checkBubble.gameObject);
         }
     }
@@ -429,12 +428,40 @@ public class MapManager : MonoBehaviour
 
         // Remove Bubble
         searchStack.Push(bubble);
+        GameObject currentSearchBubble = null;
+
+        num = -1;
 
         // 탐색 및 dropStack에 저장
-        while(searchStack.Count != 0)
+        while (searchStack.Count != 0)
         {
-            var currentSearchBubble = searchStack.Pop();
+            if(currentSearchBubble == null)
+            {
+                currentSearchBubble = bubble;
+                searchStack.Pop();
+            }
+            else
+            {
+                if(num == -1)
+                {
+                    num = searchStack.Count;
+                }
 
+                while(searchStack.Count != 0 && searchStack.Peek().GetComponent<Bubble>().IsCheck)
+                {
+                    searchStack.Pop();
+                }
+
+                if(searchStack.Count == 0)
+                {
+                    break;
+                }
+
+                currentSearchBubble = searchStack.Pop();
+                currentSearchBubble.GetComponent<Bubble>().IsCheck = true;
+                dropStack.Push(currentSearchBubble);
+            }
+            
             // 주변 버블 탐색
             if(currentSearchBubble.GetComponent<Bubble>().Row % 2 == 0)
             {
@@ -454,8 +481,8 @@ public class MapManager : MonoBehaviour
         while(dropStack.Count != 0)
         {
             var currentDropBubble = dropStack.Pop().GetComponent<AllyBubble>();
-            currentDropBubble.ChangeStateToDrop();
             mapArray[currentDropBubble.Row, currentDropBubble.Column] = null;
+            currentDropBubble.ChangeStateToDrop();
         }
     }
 

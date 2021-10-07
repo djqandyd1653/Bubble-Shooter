@@ -220,6 +220,12 @@ MonoBehaviour:
   test_takeBubbleArray:
   - {fileID: 1230852790489367849, guid: cec39f1fb85678d44888d45ff21470d0, type: 3}
   - {fileID: 5419138806289498459, guid: 647b1cc5476de674987c10be47283798, type: 3}
+  - {fileID: 7223973361582743674, guid: 6aec7766a3a577c47b385560a200afc6, type: 3}
+  - {fileID: 4916816993678057283, guid: b2dd7360fd12e3e4bafc68decbefd4fc, type: 3}
+  - {fileID: 208265360874713760, guid: 016fde858bbc36a4aa418be9e7c0d5cd, type: 3}
+  - {fileID: 1040761896999267175, guid: fe074791efd450841809521608f6ad3f, type: 3}
+  - {fileID: 6834582297762150279, guid: 85a3137e45e293e4e9f05fd2ab7a82bc, type: 3}
+  - {fileID: 4637399574901749866, guid: 817bd13e1c41a1d44bdcfd36e852749d, type: 3}
   test_Position: {x: 300, y: -720, z: 0}
 --- !u!1 &138767320
 GameObject:
