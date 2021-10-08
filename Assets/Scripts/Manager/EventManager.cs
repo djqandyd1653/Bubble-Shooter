@@ -21,6 +21,9 @@ public class EventManager : MonoSingleton<EventManager>
     // 버블 제거
     public event Action<GameObject> removeBubble;
 
+    // map 저장
+    public event Action<int, int, int, int, GameObject[,]> saveMap;
+
     public GameObject OnGetBubble(string key, Vector3 position)
     {
         return getBubble?.Invoke(key, position);
@@ -54,5 +57,10 @@ public class EventManager : MonoSingleton<EventManager>
     public void OnRemoveBubble(GameObject bubble)
     {
         removeBubble?.Invoke(bubble);
+    }
+
+    public void OnSaveMap(int maxRow, int maxColumn, int stageNumber, int mapNumber, GameObject[,] map)
+    {
+        saveMap?.Invoke(maxRow, maxColumn, stageNumber, mapNumber, map);
     }
 }

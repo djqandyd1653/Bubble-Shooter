@@ -142,8 +142,6 @@ public class Shooter : MonoBehaviour
         if (readyBubble == null)
         {
             TakeBubble(ref readyBubble);
-            // 버블 장전
-            // 슈터 이전에 생성된 버블을 슈터로 가져옴
         }
 
         currBubble = readyBubble;
@@ -152,7 +150,7 @@ public class Shooter : MonoBehaviour
     }
 
     // 버블 가져오기
-    private void TakeBubble(ref GameObject gameObject)
+    private void TakeBubble(ref GameObject bubble)
     {
         // 남은 방울 중 가장 하단 4칸의 방울 중 랜덤 생성 <= 탐색 후 큐에 담아서 하나씩 판별?
         List<GameObject> bubblelist = new List<GameObject>();
@@ -161,18 +159,17 @@ public class Shooter : MonoBehaviour
         SearchBubble();
 
         // queue에 저장
-        foreach(var bubble in test_takeBubbleArray)
+        foreach(var _bubble in test_takeBubbleArray)
         {
-            bubblelist.Add(bubble);
+            bubblelist.Add(_bubble);
         }
 
         // 랜덤 시스템
         int bubbleCount = bubblelist.Count;
-        string name = "";
 
         int randNum = UnityEngine.Random.Range(0, bubbleCount);
-        name = bubblelist[randNum].name;
-        gameObject = EventManager.Instance.OnGetBubble(name, test_Position);
+        string name = bubblelist[randNum].name;
+        bubble = EventManager.Instance.OnGetBubble(name, test_Position);
     }
 
     // 남은 버블 중 가장 하단 4칸의 버블 찾기

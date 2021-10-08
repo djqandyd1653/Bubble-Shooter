@@ -15,6 +15,6 @@ public class AllyBubbleData : BubbleData
     }
     
     [SerializeField]
-    private float speed;
+    private float speed = 0;
     public float Speed { get { return speed; } }
 }

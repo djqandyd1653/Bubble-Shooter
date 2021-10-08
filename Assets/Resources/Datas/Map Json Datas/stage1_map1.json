@@ -1,0 +1,92 @@
+{
+    "list": [
+        {
+            "bubbleName": "Blue Bubble",
+            "position": {
+                "x": -491.3229675292969,
+                "y": 604.9999389648438,
+                "z": 0.0,
+                "w": 0.0
+            },
+            "row": 0,
+            "column": 0
+        },
+        {
+            "bubbleName": "Green Bubble",
+            "position": {
+                "x": -393.0583801269531,
+                "y": 604.9999389648438,
+                "z": 0.0,
+                "w": 0.0
+            },
+            "row": 0,
+            "column": 1
+        },
+        {
+            "bubbleName": "Orange Bubble",
+            "position": {
+                "x": -294.79376220703127,
+                "y": 604.9999389648438,
+                "z": 0.0,
+                "w": 0.0
+            },
+            "row": 0,
+            "column": 2
+        },
+        {
+            "bubbleName": "Pink Bubble",
+            "position": {
+                "x": -196.5291748046875,
+                "y": 604.9999389648438,
+                "z": 0.0,
+                "w": 0.0
+            },
+            "row": 0,
+            "column": 3
+        },
+        {
+            "bubbleName": "Purple Bubble",
+            "position": {
+                "x": -98.26458740234375,
+                "y": 604.9999389648438,
+                "z": 0.0,
+                "w": 0.0
+            },
+            "row": 0,
+            "column": 4
+        },
+        {
+            "bubbleName": "Red Bubble",
+            "position": {
+                "x": 0.000011444091796875,
+                "y": 604.9999389648438,
+                "z": 0.0,
+                "w": 0.0
+            },
+            "row": 0,
+            "column": 5
+        },
+        {
+            "bubbleName": "Sky Bubble",
+            "position": {
+                "x": 98.26460266113281,
+                "y": 604.9999389648438,
+                "z": 0.0,
+                "w": 0.0
+            },
+            "row": 0,
+            "column": 6
+        },
+        {
+            "bubbleName": "Yellow Bubble",
+            "position": {
+                "x": 196.52920532226563,
+                "y": 604.9999389648438,
+                "z": 0.0,
+                "w": 0.0
+            },
+            "row": 0,
+            "column": 7
+        }
+    ]
+}

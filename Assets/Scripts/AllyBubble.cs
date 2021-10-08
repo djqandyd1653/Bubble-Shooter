@@ -15,7 +15,7 @@ public class AllyBubble : Bubble
     private Vector3 dir = Vector3.zero;
     private float destinationPositionX = 0;
 
-    private event Action bubbleStateFunction;
+    //private event Action bubbleStateFunction;
 
     protected override void Start()
     {

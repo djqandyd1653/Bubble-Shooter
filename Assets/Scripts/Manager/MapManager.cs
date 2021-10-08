@@ -16,14 +16,19 @@ public class MapManager : MonoBehaviour
     [SerializeField]
     private float halfHeight = 0;
 
-    private float firstIndexX = 0;
-    private float firstIndexY = 0;
+    private float touchAreaX = 0;
+    private float touchAreaHeigh = 0;
 
     // test
     [SerializeField]
     private BubbleData bubbleData = null;
-
     private int num = -1;
+
+    [SerializeField]
+    private int stageNumber = 0;
+    [SerializeField]
+    private int mapNumber = 0;
+
 
     // 탐색 큐
     Queue<GameObject> searchQueue = new Queue<GameObject>();
@@ -36,7 +41,13 @@ public class MapManager : MonoBehaviour
 
     void Start()
     {
-        mapArray = new GameObject[GameManager.Instance.VerticalBubbleCount, GameManager.Instance.HorizontalBubbleCount];
+        maxRow = GameManager.Instance.VerticalBubbleCount;
+        maxColumn = GameManager.Instance.HorizontalBubbleCount;
+
+        mapArray = new GameObject[maxRow, maxColumn];
+
+        GetComponent<MapJson>().LoadMap(maxRow, maxColumn, stageNumber, mapNumber, mapArray);
+
         EventManager.Instance.setBubblePosition += SetBubblePosition;
         EventManager.Instance.removeBubble += RemoveBubbles;
 
@@ -46,12 +57,8 @@ public class MapManager : MonoBehaviour
         widthDifferent = halfWidth * 2;
         heightDifferent = Mathf.Sqrt(3) * halfHeight;
 
-        maxRow = GameManager.Instance.VerticalBubbleCount;
-        maxColumn = GameManager.Instance.HorizontalBubbleCount;
-
-        firstIndexX = GameManager.Instance.TouchArea.x;
-        firstIndexY = GameManager.Instance.TouchArea.height;
-        //PrintArray();
+        touchAreaX = GameManager.Instance.TouchArea.x;
+        touchAreaHeigh = GameManager.Instance.TouchArea.height;
     }
 
     // 구슬 위치 설정
@@ -59,18 +66,18 @@ public class MapManager : MonoBehaviour
     {
         Vector3 bubblePosition = bubble.transform.position;
         // 구슬 위치에 따른 행과 열 계산
-        int row = (int)((firstIndexY - bubblePosition.y) / heightDifferent);
+        int row = (int)((touchAreaHeigh - bubblePosition.y) / heightDifferent);
         int column;
 
-        if (row % 2 == 0)
+        if (row % 2 == 1)
         {
             // 0이거나 짝수 행
-            column = (int)((bubblePosition.x - firstIndexX) / widthDifferent);
+            column = (int)((bubblePosition.x - touchAreaX) / widthDifferent);
         }
         else
         {
             // 홀수 행
-            column = (int)((bubblePosition.x - firstIndexX - halfWidth) / widthDifferent);
+            column = (int)((bubblePosition.x - touchAreaX - halfWidth) / widthDifferent);
 
             if(column == GameManager.Instance.HorizontalBubbleCount - 1)
             {
@@ -117,10 +124,10 @@ public class MapManager : MonoBehaviour
 
     private Vector3 CalculateArrayPosition(int row, int column, int z = 0)
     {
-        float x = firstIndexX + (1 + 2 * column) * halfWidth;
-        float y = firstIndexY - halfHeight - row * heightDifferent;
+        float x = touchAreaX + (1 + 2 * column) * halfWidth;
+        float y = touchAreaHeigh - halfHeight - row * heightDifferent;
 
-        if (row % 2 != 0)
+        if (row % 2 != 1)
         {
             x += halfWidth;
         }
@@ -209,7 +216,8 @@ public class MapManager : MonoBehaviour
             }
             else
             {
-                SearchBubble(row + 1, column - 1);            }
+                SearchBubble(row + 1, column - 1);
+            }
         }
 
         // row + 1, column - 0 검사
@@ -221,7 +229,8 @@ public class MapManager : MonoBehaviour
             }
             else
             {
-                SearchBubble(row + 1, column);            }
+                SearchBubble(row + 1, column);
+            }
         }
 
         // row - 0, column - 1 검사
@@ -233,7 +242,8 @@ public class MapManager : MonoBehaviour
             }
             else
             {
-                SearchBubble(row, column - 1);            }
+                SearchBubble(row, column - 1);
+            }
         }
 
         // row - 0, column + 1 검사
@@ -245,7 +255,8 @@ public class MapManager : MonoBehaviour
             }
             else
             {
-                SearchBubble(row, column + 1);            }
+                SearchBubble(row, column + 1);
+            }
         }
 
         // row - 1, column - 1 검사
@@ -305,7 +316,8 @@ public class MapManager : MonoBehaviour
             }
             else
             {
-                SearchBubble(row + 1, column + 1);            }
+                SearchBubble(row + 1, column + 1);
+            }
         }
 
         // row - 0, column - 1 검사
@@ -487,15 +499,18 @@ public class MapManager : MonoBehaviour
     }
 
 
+
     // test Function
-    private void PrintArray()
-    {
+    //private void PrintArray()
+    //{
+    //   Debug.Log(AllyBubbleData.EnumBubbleColor.BLUE.ToString());
+
         //for(int i = 0; i < GameManager.Instance.VerticalBubbleCount; i++)
         //{
-            for(int j = 0; j < GameManager.Instance.HorizontalBubbleCount; j++)
-            {
-                Debug.Log("[0][" + j + "]: " + mapArray[0, j]);
-            }
+            //for(int j = 0; j < GameManager.Instance.HorizontalBubbleCount; j++)
+            //{
+            //    Debug.Log("[0][" + j + "]: " + mapArray[0, j]);
+            //}
         //}
-    }
+    //}
 }
