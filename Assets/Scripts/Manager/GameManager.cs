@@ -5,6 +5,15 @@ using UnityEngine.UI;
 
 public class GameManager : MonoSingleton<GameManager>
 {
+    // 게임 상태
+    public enum EnumGameState
+    {
+        AIM,
+        REMOVE,
+        DROPLINE,
+        RELOAD
+    }
+
     [SerializeField]
     private GameObject[] bubbles = null;
      
@@ -24,12 +33,20 @@ public class GameManager : MonoSingleton<GameManager>
     private const float horizontaBaseLineBubbleCount = 10f;
     public float HorizontalBaseLineBubbleCount { get { return horizontaBaseLineBubbleCount; } }
 
-    public Vector3 windowLeftDownPoint;
-    public Vector3 windowRightUpPoint;
-    float width;
-    float height;
-    float calWidth;
-    float calHeight;
+    // 맵에 구슬이 없을 때 한번에 가져오는 열 수
+    private const int noneBubbleDropCount = 8;
+    public int NoneBubbleDropCount { get { return noneBubbleDropCount; } }
+
+    // 구슬 생성 시 탐색할 열 수
+    private const int searchButtomRow = 4;
+    public int SearchButtomRow { get { return searchButtomRow; } }
+
+    // 1 스테이지당 맵 갯수
+    private const int oneStageMapCount = 4;
+    public int OneStageMapCount { get { return oneStageMapCount; } }
+
+    private float calWidth;
+    private float calHeight;
 
     // 터치 영역
     public Rect TouchArea;
@@ -37,29 +54,31 @@ public class GameManager : MonoSingleton<GameManager>
     // 조준 기준선
     public Rect BaseLine;
 
+    // 게임 상태
+    [SerializeField]
+    public EnumGameState gameState;
+
     void Awake()
     {
-        #region test(나중에 정리하기)
-        windowLeftDownPoint = Camera.main.ScreenToWorldPoint(Vector3.zero);
-        windowRightUpPoint = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, 0));
+        gameState = EnumGameState.RELOAD;
 
-        width = windowRightUpPoint.x - windowLeftDownPoint.x;
-        height = windowRightUpPoint.y - windowLeftDownPoint.y - 660; // 660대신 UI 이미지 사이즈 총합 가져오기
+        Vector3 windowLeftDownPoint = Camera.main.ScreenToWorldPoint(Vector3.zero);
+        Vector3 windowRightUpPoint = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, 0));
 
-        calWidth = width / 11;
-        calHeight = height / 14;  // 원래 15지만 구슬이 겹치면서 생기는 공백때문에 16개가 박힌다. 임의로 14로 설정했지만 정확한 수치를 구해야한다.
-        #endregion
-        InitTouchArea();
+        calWidth = (windowRightUpPoint.x - windowLeftDownPoint.x) / 11;
+        calHeight = (windowRightUpPoint.y - windowLeftDownPoint.y - 660) / 14;  
+
+        InitTouchArea(windowLeftDownPoint.x, windowLeftDownPoint.y, windowRightUpPoint.x, windowRightUpPoint.y);
         InitBubbleSize();
     }
 
     // 터치 영역 초기화
-    private void InitTouchArea()
+    private void InitTouchArea(float x, float y, float width, float height)
     {
-        TouchArea.x = windowLeftDownPoint.x;
-        TouchArea.width = windowRightUpPoint.x;
-        TouchArea.y = windowLeftDownPoint.y + 400;
-        TouchArea.height = windowRightUpPoint.y - 310;
+        TouchArea.x = x;
+        TouchArea.width = width;
+        TouchArea.y = y + 400;
+        TouchArea.height = height - 310;
 
         BaseLine.x = TouchArea.x + calWidth * verticalBaseLineBubbleCount;
         BaseLine.width = TouchArea.width - calWidth * verticalBaseLineBubbleCount;
@@ -83,5 +102,17 @@ public class GameManager : MonoSingleton<GameManager>
             allyBubbleData.CalWidth = calWidth;
             allyBubbleData.CalHeight = calHeight;
         }
+    }
+
+    public bool IsMouseInTouchArea(Vector3 position)
+    {
+        if(position.x >= TouchArea.x && position.x <= TouchArea.width)
+        {
+            if(position.y >= TouchArea.y && position.y <= TouchArea.height)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }

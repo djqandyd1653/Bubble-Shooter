@@ -104,7 +104,7 @@ public class MapMaker : MonoBehaviour
     {
         row = (int)((touchAreaHeigh - mousePosition.y) / heightDifferent);
 
-        if (row % 2 == 0)
+        if (row % 2 != mapNumber % 2)
         {
             column = (int)((mousePosition.x - touchAreaX) / widthDifferent);
         }
@@ -125,7 +125,7 @@ public class MapMaker : MonoBehaviour
         float x = touchAreaX + (1 + 2 * column) * halfWidth;
         float y = touchAreaHeigh - halfHeight - row * heightDifferent;
 
-        if (row % 2 != 0)
+        if (row % 2 == mapNumber % 2)
         {
             x += halfWidth;
         }

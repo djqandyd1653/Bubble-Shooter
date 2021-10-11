@@ -160,7 +160,7 @@ MonoBehaviour:
   - {fileID: 1040761896999267175, guid: fe074791efd450841809521608f6ad3f, type: 3}
   - {fileID: 6834582297762150279, guid: 85a3137e45e293e4e9f05fd2ab7a82bc, type: 3}
   - {fileID: 4637399574901749866, guid: 817bd13e1c41a1d44bdcfd36e852749d, type: 3}
-  mapNumber: 2
+  mapNumber: 1
   stageNumber: 1
 --- !u!4 &267609982
 Transform:
@@ -471,8 +471,6 @@ MonoBehaviour:
   - {fileID: 1040761896999267175, guid: fe074791efd450841809521608f6ad3f, type: 3}
   - {fileID: 6834582297762150279, guid: 85a3137e45e293e4e9f05fd2ab7a82bc, type: 3}
   - {fileID: 4637399574901749866, guid: 817bd13e1c41a1d44bdcfd36e852749d, type: 3}
-  windowLeftDownPoint: {x: 0, y: 0, z: 0}
-  windowRightUpPoint: {x: 0, y: 0, z: 0}
   TouchArea:
     serializedVersion: 2
     x: 0
@@ -485,6 +483,7 @@ MonoBehaviour:
     y: 0
     width: 0
     height: 0
+  gameState: 0
 --- !u!4 &1282069855
 Transform:
   m_ObjectHideFlags: 0

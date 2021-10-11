@@ -8,39 +8,11 @@ public class Bubble : MonoBehaviour
 
     [SerializeField]
     protected int row = 0;
-    public int Row
-    {
-        get { return row; }
-        set
-        {
-            if (row == 0)
-            {
-                row = value;
-            }
-            else if (value == 0)
-            {
-                row = 0;
-            }
-        }
-    }
+    public int Row { get { return row; } set { row = value; } }
 
     [SerializeField]
     protected int column = 0;
-    public int Column
-    {
-        get { return column; }
-        set
-        {
-            if(column == 0)
-            {
-                column = value;
-            }
-            else if(value == 0)
-            {
-                column = 0;
-            }
-        }
-    }
+    public int Column { get { return column; } set { column = value; } }
 
     [SerializeField]
     protected bool isCheck = false;
@@ -49,5 +21,10 @@ public class Bubble : MonoBehaviour
     protected virtual void Start()
     {
         rigid = gameObject.GetComponent<Rigidbody>();
+    }
+
+    public virtual void DropLine(float heightDifferent)
+    {
+        Debug.Log(1);
     }
 }

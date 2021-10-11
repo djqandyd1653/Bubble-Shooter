@@ -5,9 +5,11 @@ using System;
 
 public class Shooter : MonoBehaviour
 {
+    // 현재 버블
     [SerializeField]
     private GameObject currBubble;
 
+    // 대기중인 버블
     [SerializeField]
     private GameObject readyBubble;
 
@@ -16,15 +18,6 @@ public class Shooter : MonoBehaviour
     Vector3 lineDir = Vector3.zero;
 
     //////////// Test var
-    [SerializeField]
-    private GameObject[] test_takeBubbleArray = null;
-
-    //[SerializeField]
-    //private int test_currCnt = 0;
-
-    //[SerializeField]
-    //private int test_maxCnt = 0;
-
     [SerializeField]
     private Vector3 test_Position = Vector3.zero;
     //////////////
@@ -39,7 +32,6 @@ public class Shooter : MonoBehaviour
         Aim();
         Fire();
         ReLoad();
-        TestCode();
     }
 
     // 조준
@@ -47,8 +39,20 @@ public class Shooter : MonoBehaviour
     {
         if(Input.GetMouseButton(0))
         {
+            // 게임 진행상태가 AIM이 아니면 예외처리
+            if(GameManager.Instance.gameState != GameManager.EnumGameState.AIM)
+            {
+                return;
+            }
+
             var mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             mousePosition.z = 0;
+
+            // 마우스가 터치영역 밖이면 예외처리
+            if(!GameManager.Instance.IsMouseInTouchArea(mousePosition))
+            {
+                return;
+            }
 
             // 마우스 포인터까지 방향벡터
             lineDir = (mousePosition - transform.position).normalized;
@@ -60,10 +64,9 @@ public class Shooter : MonoBehaviour
             // y값이 고정일 때 x값의 변화량
             float x = (baseLine.height - transform.position.y) * lineDir.x / lineDir.y;
 
-            // 여기서 받아오는게 맞나? (test)
             float bubbleRadius = currBubble.GetComponent<AllyBubble>().data.CalWidth / 2;
 
-            float touchAreaX = mousePosition.x < transform.position.x ? TouchArea.x + bubbleRadius : TouchArea.width - bubbleRadius; // 46.5f => 임시 구슬 가로 반지름
+            float touchAreaX = mousePosition.x < transform.position.x ? TouchArea.x + bubbleRadius : TouchArea.width - bubbleRadius; 
             float baseLineX = mousePosition.x < transform.position.x ? baseLine.x : baseLine.width;
             bool isMousePosXMinus = mousePosition.x < transform.position.x ? x >= touchAreaX : x <= touchAreaX;
 
@@ -78,45 +81,6 @@ public class Shooter : MonoBehaviour
             lineVector2 = new Vector3(baseLineX, -lineDir.y / lineDir.x * (baseLineX - lineVector.x) + lineVector.y, 0);
 
             EventManager.Instance.OnSetLinePosition(transform.position, lineVector, lineVector2);
-            return;
-
-            //////////////////////////////////////////
-            /*
-            //슈터 기준으로 왼쪽
-            if (mousePosition.x < transform.position.x)
-            {
-                // 기울기가 발사 기준선 왼쪽위 모서리보다 작을 때
-                if (x >= TouchArea.x)
-                {
-                    lineVector = new Vector3(x, baseLine.height, 0);
-                    EventManager.Instance.OnSetLinePosition(transform.position, lineVector);
-                    return;
-                }
-
-                // 기울기가 발사 기준선 왼쪽위 모서리보다 클 때
-                lineVector = new Vector3(TouchArea.x, lineDir.y * TouchArea.x / lineDir.x + transform.position.y, 0);
-                lineVector2 = new Vector3(baseLine.x, -lineDir.y / lineDir.x * (baseLine.x - lineVector.x) + lineVector.y, 0);
-
-                EventManager.Instance.OnSetLinePosition(transform.position, lineVector, lineVector2);
-                return;
-            }
-
-            // 슈터 기준으로 오른쪽
-
-            // 기울기가 발사 기준선 오른쪽 위 모서리보다 클 때
-            if (x <= TouchArea.width)
-            {
-                lineVector = new Vector3(x, baseLine.height, 0);
-                EventManager.Instance.OnSetLinePosition(transform.position, lineVector);
-                return;
-            }
-
-            lineVector = new Vector3(TouchArea.width, lineDir.y * TouchArea.width / lineDir.x + transform.position.y, 0);
-            lineVector2 = new Vector3(baseLine.width, -lineDir.y / lineDir.x * (baseLine.width - lineVector.x) + lineVector.y, 0);
-
-            EventManager.Instance.OnSetLinePosition(transform.position, lineVector, lineVector2);
-            return;
-            */
         }
     }
 
@@ -125,16 +89,40 @@ public class Shooter : MonoBehaviour
     {
         if(Input.GetMouseButtonUp(0))
         {
+            if(GameManager.Instance.gameState != GameManager.EnumGameState.AIM)
+            {
+                return;
+            }
+
+            var mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            mousePosition.z = 0;
+
+            // 라인렌더러 그리지 않기
             EventManager.Instance.OnSetCurveCount(0);
+
+            if (!GameManager.Instance.IsMouseInTouchArea(mousePosition))
+            {
+                GameManager.Instance.gameState = GameManager.EnumGameState.AIM;
+                return;
+            }
+
+            // 버블 상태를 Fire로 변경 및 방향벡터 전달
             currBubble.GetComponent<AllyBubble>().ChangeStateToFire(lineDir);
             currBubble = null;
+
+            GameManager.Instance.gameState = GameManager.EnumGameState.REMOVE;
         }
     }
 
     // 버블 장전
     private void ReLoad()
     {
-        if(currBubble != null)
+        if(GameManager.Instance.gameState != GameManager.EnumGameState.RELOAD)
+        {
+            return;
+        }
+
+        if (currBubble != null)
         {
             return;
         }
@@ -147,53 +135,35 @@ public class Shooter : MonoBehaviour
         currBubble = readyBubble;
         currBubble.transform.position = transform.position;
         TakeBubble(ref readyBubble);
+
+        GameManager.Instance.gameState = GameManager.EnumGameState.AIM;
     }
 
     // 버블 가져오기
     private void TakeBubble(ref GameObject bubble)
     {
-        // 남은 방울 중 가장 하단 4칸의 방울 중 랜덤 생성 <= 탐색 후 큐에 담아서 하나씩 판별?
-        List<GameObject> bubblelist = new List<GameObject>();
+        // 남은 방울 중 가장 하단 4칸의 방울 중 랜덤 생성
+        List<string> bubblelist = new List<string>();
 
         // 맵 제작 이후 남은 방울 탐색 후 queue에 저장하는 식으로 변경
-        SearchBubble();
-
-        // queue에 저장
-        foreach(var _bubble in test_takeBubbleArray)
-        {
-            bubblelist.Add(_bubble);
-        }
+        bubblelist = EventManager.Instance.OnGetButtomLineList();
 
         // 랜덤 시스템
         int bubbleCount = bubblelist.Count;
 
         int randNum = UnityEngine.Random.Range(0, bubbleCount);
-        string name = bubblelist[randNum].name;
+        string name = bubblelist[randNum];
         bubble = EventManager.Instance.OnGetBubble(name, test_Position);
     }
 
-    // 남은 버블 중 가장 하단 4칸의 버블 찾기
-    private void SearchBubble()
+    public void SwapBubble()
     {
 
     }
 
     // test code
-    private void TestCode()
-    {
-        // 버블 풀에서 가져오기
-        if (Input.GetKeyDown(KeyCode.P))
-        {
-            currBubble = EventManager.Instance.OnGetBubble("Red Bubble", transform.position);
-        }
-
-        // 버블 풀로 돌려보내기
-        if (Input.GetKeyDown(KeyCode.O))
-        {
-            EventManager.Instance.OnGiveBubble(currBubble);
-            currBubble = null;
-        }
-
+    //private void TestCode()
+    //{
         // 랜덤시 분포 체크
         //if(currBubble != null)
         //{
@@ -205,5 +175,5 @@ public class Shooter : MonoBehaviour
         //        test_currCnt++;
         //    }
         //}
-    }
+    //}
 }

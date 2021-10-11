@@ -94,7 +94,15 @@ public class MapJson : MonoBehaviour
                 var currentBubble = map[i, j];
 
                 bubbleJsonData.bubbleName = currentBubble.name;
-                bubbleJsonData.position = new CustomVector3(currentBubble.transform.position);
+                var savePosition = currentBubble.transform.position + 
+                    (mapNumber - 1) * (GameManager.Instance.TouchArea.height - GameManager.Instance.TouchArea.y) * Vector3.up;
+
+                if(mapNumber > 1)
+                {
+                    savePosition.z = -10;
+                }
+
+                bubbleJsonData.position = new CustomVector3(savePosition);
                 bubbleJsonData.row = i;
                 bubbleJsonData.column = j;
 
@@ -109,7 +117,7 @@ public class MapJson : MonoBehaviour
     }
 
     // 맵 불러오기
-    public void LoadMap(int maxRow, int maxColumn, int stageNumber, int mapNumber, GameObject[,] map)
+    public void LoadMap(int maxRow, int maxColumn, int stageNumber, int mapNumber, ref GameObject[,] map)
     {
         if(map == null)
         {

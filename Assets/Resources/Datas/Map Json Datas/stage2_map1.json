@@ -89,6 +89,61 @@
             "column": 7
         },
         {
+            "bubbleName": "Blue Bubble",
+            "position": {
+                "x": 294.85076904296877,
+                "y": 604.9999389648438,
+                "z": 0.0,
+                "w": 0.0
+            },
+            "row": 0,
+            "column": 8
+        },
+        {
+            "bubbleName": "Blue Bubble",
+            "position": {
+                "x": 393.1343994140625,
+                "y": 604.9999389648438,
+                "z": 0.0,
+                "w": 0.0
+            },
+            "row": 0,
+            "column": 9
+        },
+        {
+            "bubbleName": "Blue Bubble",
+            "position": {
+                "x": 491.41796875,
+                "y": 604.9999389648438,
+                "z": 0.0,
+                "w": 0.0
+            },
+            "row": 0,
+            "column": 10
+        },
+        {
+            "bubbleName": "Green Bubble",
+            "position": {
+                "x": -442.2762451171875,
+                "y": 527.0576782226563,
+                "z": 0.0,
+                "w": 0.0
+            },
+            "row": 1,
+            "column": 0
+        },
+        {
+            "bubbleName": "Green Bubble",
+            "position": {
+                "x": -343.99261474609377,
+                "y": 527.0576782226563,
+                "z": 0.0,
+                "w": 0.0
+            },
+            "row": 1,
+            "column": 1
+        },
+        {
             "bubbleName": "Green Bubble",
             "position": {
                 "x": -245.7090301513672,
@@ -166,7 +221,7 @@
             "column": 8
         },
         {
-            "bubbleName": "Green Bubble",
+            "bubbleName": "Blue Bubble",
             "position": {
                 "x": 442.27618408203127,
                 "y": 527.0576782226563,

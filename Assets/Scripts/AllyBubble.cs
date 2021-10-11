@@ -163,6 +163,7 @@ public class AllyBubble : Bubble
     //}
 
     // test
+    
     public void ChangeStateToFire(Vector3 _dir)
     {
         state = AllyBubbleData.BubbleState.FIRE;
@@ -179,5 +180,12 @@ public class AllyBubble : Bubble
     {
         state = AllyBubbleData.BubbleState.DROP;
         InitBubble();
+    }
+
+    public override void DropLine(float heightDifferent)
+    {
+        transform.position = new Vector3(transform.position.x,
+                                         transform.position.y - heightDifferent,
+                                         0);
     }
 }

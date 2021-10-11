@@ -24,6 +24,8 @@ public class EventManager : MonoSingleton<EventManager>
     // map 저장
     public event Action<int, int, int, int, GameObject[,]> saveMap;
 
+    public event Func<List<string>> getButtomLineList;
+
     public GameObject OnGetBubble(string key, Vector3 position)
     {
         return getBubble?.Invoke(key, position);
@@ -62,5 +64,10 @@ public class EventManager : MonoSingleton<EventManager>
     public void OnSaveMap(int maxRow, int maxColumn, int stageNumber, int mapNumber, GameObject[,] map)
     {
         saveMap?.Invoke(maxRow, maxColumn, stageNumber, mapNumber, map);
+    }
+
+    public List<string> OnGetButtomLineList()
+    {
+        return getButtomLineList?.Invoke();
     }
 }

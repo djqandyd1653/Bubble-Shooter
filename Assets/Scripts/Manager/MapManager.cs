@@ -4,9 +4,11 @@ using UnityEngine;
 
 public class MapManager : MonoBehaviour
 {
-    private GameObject[,] mapArray;
+    private List<GameObject[,]> mapList = new List<GameObject[,]>();
+
     private int maxRow = 0;
     private int maxColumn = 0;
+
     [SerializeField]
     private float heightDifferent = 0;
     [SerializeField]
@@ -16,19 +18,20 @@ public class MapManager : MonoBehaviour
     [SerializeField]
     private float halfHeight = 0;
 
-    private float touchAreaX = 0;
-    private float touchAreaHeigh = 0;
-
-    // test
     [SerializeField]
     private BubbleData bubbleData = null;
-    private int num = -1;
+
+    // 
+    private int reaminFirstSearchCount = -1;
+
+    // 맨위 0, 맨 밑 60 현재 라인 번호
+    [SerializeField]
+    private int currentLine = 0;
 
     [SerializeField]
     private int stageNumber = 0;
     [SerializeField]
-    private int mapNumber = 0;
-
+    private int mapNumber = 1;
 
     // 탐색 큐
     Queue<GameObject> searchQueue = new Queue<GameObject>();
@@ -41,35 +44,46 @@ public class MapManager : MonoBehaviour
 
     void Start()
     {
-        maxRow = GameManager.Instance.VerticalBubbleCount;
-        maxColumn = GameManager.Instance.HorizontalBubbleCount;
-
-        mapArray = new GameObject[maxRow, maxColumn];
-
-        GetComponent<MapJson>().LoadMap(maxRow, maxColumn, stageNumber, mapNumber, mapArray);
+        InitMap();
 
         EventManager.Instance.setBubblePosition += SetBubblePosition;
         EventManager.Instance.removeBubble += RemoveBubbles;
+        EventManager.Instance.getButtomLineList += GetButtomLineList;
 
         // test
         halfWidth = bubbleData.CalWidth * 0.5f;
         halfHeight = bubbleData.CalHeight * 0.5f;
         widthDifferent = halfWidth * 2;
         heightDifferent = Mathf.Sqrt(3) * halfHeight;
+    }
 
-        touchAreaX = GameManager.Instance.TouchArea.x;
-        touchAreaHeigh = GameManager.Instance.TouchArea.height;
+    private void InitMap()
+    {
+        maxRow = GameManager.Instance.VerticalBubbleCount;
+        maxColumn = GameManager.Instance.HorizontalBubbleCount;
+
+        for(int i = 0; i < GameManager.Instance.OneStageMapCount; i++)
+        {
+            var currentMap = new GameObject[maxRow, maxColumn];
+            GetComponent<MapJson>().LoadMap(maxRow, maxColumn, stageNumber, mapNumber + i, ref currentMap);
+            mapList.Add(currentMap);
+        }
     }
 
     // 구슬 위치 설정
     private Vector3 SetBubblePosition(GameObject bubble)
     {
         Vector3 bubblePosition = bubble.transform.position;
+
+        float touchAreaX = GameManager.Instance.TouchArea.x;
+        float touchAreaHeigh = GameManager.Instance.TouchArea.height;
+
         // 구슬 위치에 따른 행과 열 계산
         int row = (int)((touchAreaHeigh - bubblePosition.y) / heightDifferent);
         int column;
 
-        if (row % 2 == 1)
+        // 한 줄 내려올 때
+        if ((row + (currentLine % 2)) % 2 == 0)
         {
             // 0이거나 짝수 행
             column = (int)((bubblePosition.x - touchAreaX) / widthDifferent);
@@ -89,45 +103,18 @@ public class MapManager : MonoBehaviour
         Bubble currentbubble = bubble.GetComponent<Bubble>();
         currentbubble.Row = row;
         currentbubble.Column = column;
-        mapArray[row, column] = bubble;
+        mapList[0][row, column] = bubble;
 
-        Debug.Log(row + ", " + column);
-
-        return CalculateArrayPosition(row, column);
+        return CalculateArrayPosition(touchAreaX, touchAreaHeigh, row, column);
     }
 
-    // 위쪽 2개 양 옆 2개 탐색
-    //private bool SearchAroundIndex(int row, int column, Vector3 bubblePosition)
-    //{
-    //    if(row > 0 && column > 0 && mapArray[row - 1, column - 1] != 0)
-    //    {
-    //        return false;
-    //    }
-
-    //    if (column > 0 && mapArray[row, column - 1] != 0)
-    //    {
-    //        return false;
-    //    }
-
-    //    if (row > 0 && mapArray[row - 1, column] != 0)
-    //    {
-    //        return false;
-    //    }
-
-    //    if (column < (GameManager.Instance.HorizontalBubbleCount - 1) && mapArray[row, column + 1] != 0)
-    //    {
-    //        return false;
-    //    }
-
-    //    return true;
-    //}
-
-    private Vector3 CalculateArrayPosition(int row, int column, int z = 0)
+    private Vector3 CalculateArrayPosition(float touchAreaX, float touchAreaHeigh, int row, int column, int z = 0)
     {
         float x = touchAreaX + (1 + 2 * column) * halfWidth;
         float y = touchAreaHeigh - halfHeight - row * heightDifferent;
 
-        if (row % 2 != 1)
+        // 한 줄 내려올 떄
+        if ((row + (currentLine % 2)) % 2 != 0)
         {
             x += halfWidth;
         }
@@ -150,7 +137,7 @@ public class MapManager : MonoBehaviour
         {
             GameObject currentSearchBubble = searchQueue.Dequeue();
 
-            if (currentSearchBubble.GetComponent<Bubble>().Row % 2 == 0)
+            if ((currentSearchBubble.GetComponent<Bubble>().Row + (currentLine % 2)) % 2 == 0)
             {
                 CalculateEvenRow(currentSearchBubble, true);
             }
@@ -172,6 +159,7 @@ public class MapManager : MonoBehaviour
             removeQueue.Clear();
             searchQueue.Clear();
             bubble.GetComponent<AllyBubble>().ChangeStateToWaiting();
+            DropLine();
             return;
         }
 
@@ -180,7 +168,7 @@ public class MapManager : MonoBehaviour
             var currentRemoveBubble = removeQueue.Dequeue();
             DropBubbles(currentRemoveBubble);
             AllyBubble temp = currentRemoveBubble.GetComponent<AllyBubble>();
-            mapArray[temp.Row, temp.Column] = null;
+            mapList[0][temp.Row, temp.Column] = null;
             temp.ChangeStateToWaiting();
             temp.InitBubble();
             EventManager.Instance.OnGiveBubble(currentRemoveBubble);
@@ -190,14 +178,16 @@ public class MapManager : MonoBehaviour
         {
             for (int j = 0; j < GameManager.Instance.HorizontalBubbleCount; j++)
             {
-                if(mapArray[i, j] == null)
+                if(mapList[0][i, j] == null)
                 {
                     continue;
                 }
 
-                mapArray[i, j].GetComponent<Bubble>().IsCheck = false;
+                mapList[0][i, j].GetComponent<Bubble>().IsCheck = false;
             }
         }
+
+        DropLine();
     }
 
     private void CalculateEvenRow(GameObject _bubble, bool isSearchRemoveBubble)
@@ -376,12 +366,12 @@ public class MapManager : MonoBehaviour
     // 같은 색 구슬 탐색
     private void SearchBubble(int row, int column, int colorNum)
     {
-        if(mapArray[row, column] == null)
+        if(mapList[0][row, column] == null)
         {
             return;
         }
 
-        AllyBubble checkBubble = mapArray[row, column].GetComponent<AllyBubble>();
+        AllyBubble checkBubble = mapList[0][row, column].GetComponent<AllyBubble>();
         int _colorNum = (int)checkBubble.data.BubbleColor;
 
         // 같은 색인지 비교함
@@ -399,26 +389,26 @@ public class MapManager : MonoBehaviour
 
     private void SearchBubble(int row, int column)
     {
-        if (mapArray[row, column] == null)
+        if (mapList[0][row, column] == null)
         {
             return;
         }
 
-        AllyBubble checkBubble = mapArray[row, column].GetComponent<AllyBubble>();
+        AllyBubble checkBubble = mapList[0][row, column].GetComponent<AllyBubble>();
 
         // 체크한적 없으면
         if (!checkBubble.IsCheck)
         {   
             if (row == 0)
             {
-                while(num >= 0 && searchStack.Count > num)
+                if (reaminFirstSearchCount > 0)
                 {
-                    searchStack.Pop();
+                    reaminFirstSearchCount--;
                 }
 
-                if(num > 0)
+                while (reaminFirstSearchCount >= 0 && searchStack.Count > reaminFirstSearchCount)
                 {
-                    num--;
+                    searchStack.Pop();
                 }
 
                 while (dropStack.Count != 0)
@@ -433,6 +423,7 @@ public class MapManager : MonoBehaviour
         }
     }
 
+    // 끝과 연결되지 않은 버블 떨어뜨리기
     private void DropBubbles(GameObject bubble)
     {
         searchStack.Clear();
@@ -442,7 +433,7 @@ public class MapManager : MonoBehaviour
         searchStack.Push(bubble);
         GameObject currentSearchBubble = null;
 
-        num = -1;
+        reaminFirstSearchCount = -1;
 
         // 탐색 및 dropStack에 저장
         while (searchStack.Count != 0)
@@ -454,9 +445,9 @@ public class MapManager : MonoBehaviour
             }
             else
             {
-                if(num == -1)
+                if(reaminFirstSearchCount == -1)
                 {
-                    num = searchStack.Count;
+                    reaminFirstSearchCount = searchStack.Count;
                 }
 
                 while(searchStack.Count != 0 && searchStack.Peek().GetComponent<Bubble>().IsCheck)
@@ -475,7 +466,7 @@ public class MapManager : MonoBehaviour
             }
             
             // 주변 버블 탐색
-            if(currentSearchBubble.GetComponent<Bubble>().Row % 2 == 0)
+            if((currentSearchBubble.GetComponent<Bubble>().Row + (currentLine % 2)) % 2 == 0)
             {
                 CalculateEvenRow(currentSearchBubble, false);
             }
@@ -493,24 +484,145 @@ public class MapManager : MonoBehaviour
         while(dropStack.Count != 0)
         {
             var currentDropBubble = dropStack.Pop().GetComponent<AllyBubble>();
-            mapArray[currentDropBubble.Row, currentDropBubble.Column] = null;
+            mapList[0][currentDropBubble.Row, currentDropBubble.Column] = null;
             currentDropBubble.ChangeStateToDrop();
         }
     }
 
+    // 버블 내리기
+    private void DropLine()
+    {
+        bool isAllBubbleNull = true;
 
+        // 구슬 한 칸씩 내리기
+        for (int i = maxRow - 1; i >= 0; i--)
+        {
+            for (int j = 0; j < maxColumn; j++)
+            {
+                if (mapList[0][i,j] == null)
+                {
+                    continue;
+                }
 
-    // test Function
-    //private void PrintArray()
-    //{
-    //   Debug.Log(AllyBubbleData.EnumBubbleColor.BLUE.ToString());
+                if (i >= maxRow - 1)
+                {
+                    Debug.Log("Game Over");
+                    return;
+                }
 
-        //for(int i = 0; i < GameManager.Instance.VerticalBubbleCount; i++)
-        //{
-            //for(int j = 0; j < GameManager.Instance.HorizontalBubbleCount; j++)
-            //{
-            //    Debug.Log("[0][" + j + "]: " + mapArray[0, j]);
-            //}
-        //}
-    //}
+                if(isAllBubbleNull)
+                {
+                    isAllBubbleNull = !isAllBubbleNull;
+                }
+
+                var currentBubble = mapList[0][i, j].GetComponent<Bubble>();
+                currentBubble.DropLine(heightDifferent);
+                currentBubble.Row = i + 1;
+                mapList[0][i + 1, j] = mapList[0][i, j];
+                mapList[0][i, j] = null;
+            }
+        }
+
+        // 아무것도 없으면 8줄 가져오기
+        if(isAllBubbleNull)
+        {
+            int noneBubbleDropCount = GameManager.Instance.NoneBubbleDropCount;
+
+            if(currentLine >= noneBubbleDropCount)
+            {
+                for(int i = 0; i < noneBubbleDropCount; i++)
+                {
+                    DropOneLine(noneBubbleDropCount - i - 1);
+                }
+            }
+            else
+            {
+                for (int i = 0; i < currentLine; i++)
+                {
+                    DropOneLine(i);
+                }
+
+                currentLine = 0;
+            }
+
+            GameManager.Instance.gameState = GameManager.EnumGameState.RELOAD;
+            return;
+        }
+
+        // 다음 맵에서 1줄씩 가져오기
+        DropOneLine();
+
+        GameManager.Instance.gameState = GameManager.EnumGameState.RELOAD;
+    }
+
+    // 다음 맵에서 1줄씩 가져오기
+    private void DropOneLine(int num = 0)
+    {
+        if (currentLine > 0)
+        {
+            currentLine--;
+
+            int _maxColumn = currentLine % 2 == 0 ? maxColumn : maxColumn - 1;
+            int _maxRow = currentLine % maxRow == 0 ? maxRow - 1 : currentLine % maxRow - 1;
+
+            for (int i = 0; i < _maxColumn; i++)
+            {
+                int nextMapNumber = GameManager.Instance.OneStageMapCount - (currentLine - 1) / GameManager.Instance.VerticalBubbleCount - 1;
+
+                if(mapList[nextMapNumber][_maxRow, i] == null)
+                {
+                    continue;
+                }
+
+                mapList[0][num, i] = mapList[nextMapNumber][_maxRow, i];
+                mapList[nextMapNumber][_maxRow, i] = null;
+                var currentBubble = mapList[0][num, i].GetComponent<AllyBubble>();
+                currentBubble.Row = num;
+
+                if (num == 0)
+                {
+                    currentBubble.DropLine((maxRow * nextMapNumber - _maxRow) * heightDifferent + halfHeight * nextMapNumber);
+                }
+                else
+                {
+                    currentBubble.DropLine(8 * nextMapNumber * heightDifferent + halfHeight * nextMapNumber);
+                }
+            }
+        }
+    }
+
+    // 마지막에서 4번째까지 존재하는 버블 종류 서치
+    private List<string> GetButtomLineList()
+    {
+        List<string> buttomLineBubbleName = new List<string>();
+
+        int buttomRow = -1;
+
+        for (int i = maxRow - 1; i >= 0; i--)
+        {
+            for (int j = 0; j < maxColumn; j++)
+            {
+                if (mapList[0][i, j] == null)
+                {
+                    continue;
+                }
+
+                // 마지막에서 4번째까지 존재하는 버블 종류 서치
+                if (buttomRow == -1)
+                {
+                    buttomRow = i;
+                }
+
+                if (buttomRow != -1 && i > buttomRow - GameManager.Instance.SearchButtomRow)
+                {
+                    if (!buttomLineBubbleName.Contains(mapList[0][i, j].name))
+                    {
+                        buttomLineBubbleName.Add(mapList[0][i, j].name);
+                    }
+                }
+            }
+        }
+
+        return buttomLineBubbleName;
+    }
 }
