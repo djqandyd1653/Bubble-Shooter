@@ -59,7 +59,7 @@ public class GameManager : MonoSingleton<GameManager>
     public EnumGameState gameState;
 
     void Awake()
-    {
+    { 
         gameState = EnumGameState.RELOAD;
 
         Vector3 windowLeftDownPoint = Camera.main.ScreenToWorldPoint(Vector3.zero);

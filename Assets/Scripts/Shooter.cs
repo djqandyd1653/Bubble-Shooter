@@ -19,12 +19,13 @@ public class Shooter : MonoBehaviour
 
     //////////// Test var
     [SerializeField]
-    private Vector3 test_Position = Vector3.zero;
+    private Vector3 test_Position; 
     //////////////
 
     private void Start()
     {
         EventManager.Instance.OnSetCurveCount(0);
+        test_Position = new Vector3(GameManager.Instance.TouchArea.width - 50, transform.position.y, 0);
     }
 
     private void Update()
@@ -156,9 +157,23 @@ public class Shooter : MonoBehaviour
         bubble = EventManager.Instance.OnGetBubble(name, test_Position);
     }
 
+    // 버블 바꾸기
     public void SwapBubble()
     {
+        var tempBubble = currBubble;
 
+        currBubble = readyBubble;
+        readyBubble = tempBubble;
+
+        currBubble.transform.position = transform.position;
+        readyBubble.transform.position = test_Position;
+    }
+
+    public void SwapBubble(string name)
+    {
+        var item = EventManager.Instance.OnGetBubble(name, transform.position);
+        EventManager.Instance.OnGiveBubble(currBubble);
+        currBubble = item;
     }
 
     // test code

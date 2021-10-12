@@ -14,8 +14,8 @@ public class BubbleData : ScriptableObject
         INCREASE,           // 증식
         BASELINE,           // 기준선 증가
         FIVE_HORIZONTAL,    // 가로 5칸 제거
-        SAME,               // 같은 구슬 제거
-        TWO_RADIUS,         // 360도 2칸 제거
+        RAINBOW,            // 같은 구슬 제거
+        WIDE_AREA,          // 360도 2칸 제거
         ALL_HORIZONTAL      // 가로 한줄 제거
     }
 
