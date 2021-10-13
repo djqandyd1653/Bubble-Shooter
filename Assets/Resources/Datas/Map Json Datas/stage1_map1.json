@@ -3,7 +3,7 @@
         {
             "bubbleName": "Blue Bubble",
             "position": {
-                "x": -491.41802978515627,
+                "x": -491.3229675292969,
                 "y": 604.9999389648438,
                 "z": 0.0,
                 "w": 0.0
@@ -14,117 +14,73 @@
         {
             "bubbleName": "Blue Bubble",
             "position": {
-                "x": -393.1343994140625,
+                "x": -294.79376220703127,
                 "y": 604.9999389648438,
                 "z": 0.0,
                 "w": 0.0
             },
             "row": 0,
+            "column": 2
+        },
+        {
+            "bubbleName": "Blue Bubble",
+            "position": {
+                "x": -98.26458740234375,
+                "y": 604.9999389648438,
+                "z": 0.0,
+                "w": 0.0
+            },
+            "row": 0,
+            "column": 4
+        },
+        {
+            "bubbleName": "Blue Bubble",
+            "position": {
+                "x": 98.26460266113281,
+                "y": 604.9999389648438,
+                "z": 0.0,
+                "w": 0.0
+            },
+            "row": 0,
+            "column": 6
+        },
+        {
+            "bubbleName": "Blue Bubble",
+            "position": {
+                "x": 294.7937927246094,
+                "y": 604.9999389648438,
+                "z": 0.0,
+                "w": 0.0
+            },
+            "row": 0,
+            "column": 8
+        },
+        {
+            "bubbleName": "Blue Bubble",
+            "position": {
+                "x": 491.322998046875,
+                "y": 604.9999389648438,
+                "z": 0.0,
+                "w": 0.0
+            },
+            "row": 0,
+            "column": 10
+        },
+        {
+            "bubbleName": "Blue Bubble",
+            "position": {
+                "x": -343.92608642578127,
+                "y": 527.0576782226563,
+                "z": 0.0,
+                "w": 0.0
+            },
+            "row": 1,
             "column": 1
         },
         {
             "bubbleName": "Blue Bubble",
             "position": {
-                "x": -294.850830078125,
-                "y": 604.9999389648438,
-                "z": 0.0,
-                "w": 0.0
-            },
-            "row": 0,
-            "column": 2
-        },
-        {
-            "bubbleName": "Blue Bubble",
-            "position": {
-                "x": -196.5672149658203,
-                "y": 604.9999389648438,
-                "z": 0.0,
-                "w": 0.0
-            },
-            "row": 0,
-            "column": 3
-        },
-        {
-            "bubbleName": "Blue Bubble",
-            "position": {
-                "x": -98.28361511230469,
-                "y": 604.9999389648438,
-                "z": 0.0,
-                "w": 0.0
-            },
-            "row": 0,
-            "column": 4
-        },
-        {
-            "bubbleName": "Blue Bubble",
-            "position": {
-                "x": -0.0000152587890625,
-                "y": 604.9999389648438,
-                "z": 0.0,
-                "w": 0.0
-            },
-            "row": 0,
-            "column": 5
-        },
-        {
-            "bubbleName": "Blue Bubble",
-            "position": {
-                "x": 98.28358459472656,
-                "y": 604.9999389648438,
-                "z": 0.0,
-                "w": 0.0
-            },
-            "row": 0,
-            "column": 6
-        },
-        {
-            "bubbleName": "Blue Bubble",
-            "position": {
-                "x": 196.5671844482422,
-                "y": 604.9999389648438,
-                "z": 0.0,
-                "w": 0.0
-            },
-            "row": 0,
-            "column": 7
-        },
-        {
-            "bubbleName": "Green Bubble",
-            "position": {
-                "x": -245.7090301513672,
-                "y": 527.0576782226563,
-                "z": 0.0,
-                "w": 0.0
-            },
-            "row": 1,
-            "column": 2
-        },
-        {
-            "bubbleName": "Green Bubble",
-            "position": {
-                "x": -147.4254150390625,
-                "y": 527.0576782226563,
-                "z": 0.0,
-                "w": 0.0
-            },
-            "row": 1,
-            "column": 3
-        },
-        {
-            "bubbleName": "Green Bubble",
-            "position": {
-                "x": -49.141815185546878,
-                "y": 527.0576782226563,
-                "z": 0.0,
-                "w": 0.0
-            },
-            "row": 1,
-            "column": 4
-        },
-        {
-            "bubbleName": "Green Bubble",
-            "position": {
-                "x": 49.14178466796875,
+                "x": 49.13230895996094,
                 "y": 527.0576782226563,
                 "z": 0.0,
                 "w": 0.0
@@ -133,48 +89,15 @@
             "column": 5
         },
         {
-            "bubbleName": "Green Bubble",
+            "bubbleName": "Blue Bubble",
             "position": {
-                "x": 147.42538452148438,
-                "y": 527.0576782226563,
-                "z": 0.0,
-                "w": 0.0
-            },
-            "row": 1,
-            "column": 6
-        },
-        {
-            "bubbleName": "Green Bubble",
-            "position": {
-                "x": 245.708984375,
-                "y": 527.0576782226563,
-                "z": 0.0,
-                "w": 0.0
-            },
-            "row": 1,
-            "column": 7
-        },
-        {
-            "bubbleName": "Green Bubble",
-            "position": {
-                "x": 343.9925537109375,
+                "x": 343.92608642578127,
                 "y": 527.0576782226563,
                 "z": 0.0,
                 "w": 0.0
             },
             "row": 1,
             "column": 8
-        },
-        {
-            "bubbleName": "Green Bubble",
-            "position": {
-                "x": 442.27618408203127,
-                "y": 527.0576782226563,
-                "z": 0.0,
-                "w": 0.0
-            },
-            "row": 1,
-            "column": 9
         }
     ]
 }

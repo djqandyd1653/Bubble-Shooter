@@ -1,0 +1,92 @@
+{
+    "list": [
+        {
+            "bubbleName": "Purple Bubble",
+            "position": {
+                "x": -343.92608642578127,
+                "y": 604.9999389648438,
+                "z": 0.0,
+                "w": 0.0
+            },
+            "row": 0,
+            "column": 1
+        },
+        {
+            "bubbleName": "Purple Bubble",
+            "position": {
+                "x": -245.66146850585938,
+                "y": 604.9999389648438,
+                "z": 0.0,
+                "w": 0.0
+            },
+            "row": 0,
+            "column": 2
+        },
+        {
+            "bubbleName": "Purple Bubble",
+            "position": {
+                "x": -147.39688110351563,
+                "y": 604.9999389648438,
+                "z": 0.0,
+                "w": 0.0
+            },
+            "row": 0,
+            "column": 3
+        },
+        {
+            "bubbleName": "Purple Bubble",
+            "position": {
+                "x": -49.13228988647461,
+                "y": 604.9999389648438,
+                "z": 0.0,
+                "w": 0.0
+            },
+            "row": 0,
+            "column": 4
+        },
+        {
+            "bubbleName": "Purple Bubble",
+            "position": {
+                "x": -294.79376220703127,
+                "y": 527.0576782226563,
+                "z": 0.0,
+                "w": 0.0
+            },
+            "row": 1,
+            "column": 2
+        },
+        {
+            "bubbleName": "Purple Bubble",
+            "position": {
+                "x": -196.5291748046875,
+                "y": 527.0576782226563,
+                "z": 0.0,
+                "w": 0.0
+            },
+            "row": 1,
+            "column": 3
+        },
+        {
+            "bubbleName": "Purple Bubble",
+            "position": {
+                "x": -343.92608642578127,
+                "y": 449.1153869628906,
+                "z": 0.0,
+                "w": 0.0
+            },
+            "row": 2,
+            "column": 1
+        },
+        {
+            "bubbleName": "Purple Bubble",
+            "position": {
+                "x": -245.66146850585938,
+                "y": 449.1153869628906,
+                "z": 0.0,
+                "w": 0.0
+            },
+            "row": 2,
+            "column": 2
+        }
+    ]
+}

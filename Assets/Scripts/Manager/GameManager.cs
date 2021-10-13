@@ -11,7 +11,8 @@ public class GameManager : MonoSingleton<GameManager>
         AIM,
         REMOVE,
         DROPLINE,
-        RELOAD
+        RELOAD,
+        STOP
     }
 
     [SerializeField]
@@ -54,9 +55,15 @@ public class GameManager : MonoSingleton<GameManager>
     // 조준 기준선
     public Rect BaseLine;
 
+    [SerializeField]
+    private Canvas menuCanvas = null;
+
     // 게임 상태
     [SerializeField]
     public EnumGameState gameState;
+
+    // 이전 게임 상태
+    private EnumGameState lastGameState;
 
     void Awake()
     { 
@@ -114,5 +121,37 @@ public class GameManager : MonoSingleton<GameManager>
             }
         }
         return false;
+    }
+
+    // pause 버튼 눌렀을때
+    public void ClickPauseButton()
+    {
+        menuCanvas.gameObject.SetActive(true);
+        Time.timeScale = 0;
+        lastGameState = gameState;
+        gameState = EnumGameState.STOP;
+    }
+
+    // 되돌아가기
+    public void ClickBackButton()
+    {
+        menuCanvas.gameObject.SetActive(false);
+        Time.timeScale = 1;
+        Invoke("ChangeGameStage", 0.2f);
+    }
+
+    private void ChangeGameStage()
+    {
+        gameState = lastGameState;
+    }
+
+    // 다시시작
+    public void Retry()
+    {
+        EventManager.Instance.OnInitMap();
+        EventManager.Instance.OnInitBubblePool();
+        menuCanvas.gameObject.SetActive(false);
+        Time.timeScale = 1;
+        gameState = EnumGameState.AIM;
     }
 }

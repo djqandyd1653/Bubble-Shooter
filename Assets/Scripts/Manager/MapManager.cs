@@ -48,7 +48,9 @@ public class MapManager : MonoBehaviour
 
         EventManager.Instance.setBubblePosition += SetBubblePosition;
         EventManager.Instance.removeBubble += RemoveBubbles;
-        EventManager.Instance.getButtomLineList += GetButtomLineList;
+        EventManager.Instance.getBottomLineList += GetBottomLineList;
+        EventManager.Instance.searchBubble += SearchBubble;
+        EventManager.Instance.initMap += InitMap;
 
         // test
         halfWidth = bubbleData.CalWidth * 0.5f;
@@ -123,44 +125,24 @@ public class MapManager : MonoBehaviour
     }
 
     // 버블 제거
-    private void RemoveBubbles(GameObject bubble)
+    private void RemoveBubbles(GameObject bubble, bool isNormalBubble = true)
     {
-        // queue 초기화
-        searchQueue.Clear();
-        removeQueue.Clear();
-
-        searchQueue.Enqueue(bubble);
-        removeQueue.Enqueue(bubble);
-        bubble.GetComponent<Bubble>().IsCheck = true;
-
-        while(searchQueue.Count != 0)
+        if(isNormalBubble)
         {
-            GameObject currentSearchBubble = searchQueue.Dequeue();
+            searchQueue.Enqueue(bubble);
+            removeQueue.Enqueue(bubble);
+            bubble.GetComponent<Bubble>().IsCheck = true;
 
-            if ((currentSearchBubble.GetComponent<Bubble>().Row + (currentLine % 2)) % 2 == 0)
+            SearchQueueTraversal();
+            if (removeQueue.Count < 3)
             {
-                CalculateEvenRow(currentSearchBubble, true);
-            }
-            else
-            {
-                CalculateOddRow(currentSearchBubble, true);
+                RevertRemoveQueue(bubble);
+                return;
             }
         }
-
-        if(removeQueue.Count < 3)
+        else
         {
-            while (removeQueue.Count != 0)
-            {
-                GameObject currentRemoveBubble = removeQueue.Dequeue();
-                Bubble temp = currentRemoveBubble.GetComponent<Bubble>();
-                temp.IsCheck = false;
-            }
-
-            removeQueue.Clear();
-            searchQueue.Clear();
-            bubble.GetComponent<AllyBubble>().ChangeStateToWaiting();
-            DropLine();
-            return;
+            EventManager.Instance.OnGiveBubble(bubble);
         }
 
         while (removeQueue.Count != 0)
@@ -168,6 +150,12 @@ public class MapManager : MonoBehaviour
             var currentRemoveBubble = removeQueue.Dequeue();
             DropBubbles(currentRemoveBubble);
             AllyBubble temp = currentRemoveBubble.GetComponent<AllyBubble>();
+
+            if(temp.Row == 0 && temp.Column == 0)
+            {
+                int a = 0;
+            }
+
             mapList[0][temp.Row, temp.Column] = null;
             temp.ChangeStateToWaiting();
             temp.InitBubble();
@@ -188,6 +176,28 @@ public class MapManager : MonoBehaviour
         }
 
         DropLine();
+
+        // queue 초기화
+        searchQueue.Clear();
+        removeQueue.Clear();
+    }
+
+    // 탐색 큐 순회
+    private void SearchQueueTraversal()
+    {
+        while (searchQueue.Count != 0)
+        {
+            GameObject currentSearchBubble = searchQueue.Dequeue();
+
+            if ((currentSearchBubble.GetComponent<Bubble>().Row + (currentLine % 2)) % 2 == 0)
+            {
+                CalculateEvenRow(currentSearchBubble, true);
+            }
+            else
+            {
+                CalculateOddRow(currentSearchBubble, true);
+            }
+        }
     }
 
     private void CalculateEvenRow(GameObject _bubble, bool isSearchRemoveBubble)
@@ -363,7 +373,7 @@ public class MapManager : MonoBehaviour
         }
     }
 
-    // 같은 색 구슬 탐색
+    // 구슬 탐색
     private void SearchBubble(int row, int column, int colorNum)
     {
         if(mapList[0][row, column] == null)
@@ -372,21 +382,30 @@ public class MapManager : MonoBehaviour
         }
 
         AllyBubble checkBubble = mapList[0][row, column].GetComponent<AllyBubble>();
-        int _colorNum = (int)checkBubble.data.BubbleColor;
 
-        // 같은 색인지 비교함
-        if ((int)checkBubble.data.BubbleColor == colorNum)
+        // 특수 버블이 아닐때
+        if(colorNum != (int)BubbleData.EnumBubbleColor.SPECIAL)
         {
-            // 체크한적 없으면
-            if (!checkBubble.IsCheck)
+            int _colorNum = (int)checkBubble.data.BubbleColor;
+
+            // 같은 색인지 비교함
+            if (_colorNum != colorNum)
             {
-                checkBubble.IsCheck = true;
-                removeQueue.Enqueue(checkBubble.gameObject);
-                searchQueue.Enqueue(checkBubble.gameObject);
+                return; 
             }
         }
+
+        // 체크한적 없으면
+        if (!checkBubble.IsCheck)
+        {
+            checkBubble.IsCheck = true;
+            removeQueue.Enqueue(checkBubble.gameObject);
+            searchQueue.Enqueue(checkBubble.gameObject);
+        }
+
     }
 
+    // 드랍 구슬 검색
     private void SearchBubble(int row, int column)
     {
         if (mapList[0][row, column] == null)
@@ -421,6 +440,22 @@ public class MapManager : MonoBehaviour
 
             searchStack.Push(checkBubble.gameObject);
         }
+    }
+
+    // removeQueue 되돌리기
+    private void RevertRemoveQueue(GameObject bubble)
+    {
+        while (removeQueue.Count != 0)
+        {
+            var currentRemoveBubble = removeQueue.Dequeue();
+            Bubble temp = currentRemoveBubble.GetComponent<Bubble>();
+            temp.IsCheck = false;
+        }
+
+        removeQueue.Clear();
+        searchQueue.Clear();
+        bubble.GetComponent<AllyBubble>().ChangeStateToWaiting();
+        DropLine();
     }
 
     // 끝과 연결되지 않은 버블 떨어뜨리기
@@ -592,11 +627,11 @@ public class MapManager : MonoBehaviour
     }
 
     // 마지막에서 4번째까지 존재하는 버블 종류 서치
-    private List<string> GetButtomLineList()
+    private List<string> GetBottomLineList()
     {
-        List<string> buttomLineBubbleName = new List<string>();
+        List<string> bottomLineBubbleName = new List<string>();
 
-        int buttomRow = -1;
+        int bottomRow = -1;
 
         for (int i = maxRow - 1; i >= 0; i--)
         {
@@ -607,22 +642,28 @@ public class MapManager : MonoBehaviour
                     continue;
                 }
 
-                // 마지막에서 4번째까지 존재하는 버블 종류 서치
-                if (buttomRow == -1)
+                // 탐색된 버블이 특수버블이면 스킵
+                if (mapList[0][i, j].GetComponent<AllyBubble>().data.BubbleColor == AllyBubbleData.EnumBubbleColor.SPECIAL)
                 {
-                    buttomRow = i;
+                    continue;
                 }
 
-                if (buttomRow != -1 && i > buttomRow - GameManager.Instance.SearchButtomRow)
+                // 마지막에서 4번째까지 존재하는 버블 종류 서치
+                if (bottomRow == -1)
                 {
-                    if (!buttomLineBubbleName.Contains(mapList[0][i, j].name))
+                    bottomRow = i;
+                }
+
+                if (bottomRow != -1 && i > bottomRow - GameManager.Instance.SearchButtomRow)
+                {
+                    if (!bottomLineBubbleName.Contains(mapList[0][i, j].name))
                     {
-                        buttomLineBubbleName.Add(mapList[0][i, j].name);
+                        bottomLineBubbleName.Add(mapList[0][i, j].name);
                     }
                 }
             }
         }
 
-        return buttomLineBubbleName;
+        return bottomLineBubbleName;
     }
 }

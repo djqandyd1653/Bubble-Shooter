@@ -7,18 +7,31 @@ public class BubblePool : MonoBehaviour
     [SerializeField]
     private GameObject[] bubblePrefabs = null;
 
-    Dictionary<string, Queue<GameObject>> poolManager = new Dictionary<string, Queue<GameObject>>();
+    Dictionary<string, Queue<GameObject>> poolManager = null;
 
     void Start()
     {
         InitPoolManager();
         EventManager.Instance.getBubble += GiveBubble;
         EventManager.Instance.giveBubble += TakeBubble;
+        EventManager.Instance.initBubblePool += InitPoolManager;
     }
 
     // 버블 풀 관리자 초기화
     private void InitPoolManager()
     {
+        if(poolManager != null)
+        {
+            foreach(var queue in poolManager.Values)
+            {
+                queue.Clear();
+            }
+
+            poolManager.Clear();
+        }
+
+        poolManager = new Dictionary<string, Queue<GameObject>>();
+
         foreach (var bubblePrefab in bubblePrefabs)
         {
             string key = bubblePrefab.name;
@@ -28,7 +41,7 @@ public class BubblePool : MonoBehaviour
                 poolManager.Add(key, new Queue<GameObject>());
             }
 
-            CreateBubble(key, bubblePrefab, 10);
+            CreateBubble(key, bubblePrefab, 5);
         }
     }
 

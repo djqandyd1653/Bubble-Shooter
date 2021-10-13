@@ -147,10 +147,15 @@ public class Shooter : MonoBehaviour
         List<string> bubblelist = new List<string>();
 
         // 맵 제작 이후 남은 방울 탐색 후 queue에 저장하는 식으로 변경
-        bubblelist = EventManager.Instance.OnGetButtomLineList();
+        bubblelist = EventManager.Instance.OnGetBottomLineList();
 
         // 랜덤 시스템
         int bubbleCount = bubblelist.Count;
+
+        if(bubbleCount == 0)
+        {
+            return;
+        }
 
         int randNum = UnityEngine.Random.Range(0, bubbleCount);
         string name = bubblelist[randNum];

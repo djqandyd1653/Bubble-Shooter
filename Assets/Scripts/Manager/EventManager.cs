@@ -16,15 +16,26 @@ public class EventManager : MonoSingleton<EventManager>
     // 라인 커브 갯수 설정하기
     public event Action<int> setCurveCount;
 
+    // 버블 위치 설정
     public event Func<GameObject, Vector3> setBubblePosition;
 
     // 버블 제거
-    public event Action<GameObject> removeBubble;
+    public event Action<GameObject, bool> removeBubble;
+
+    // 버블 탐색
+    public event Action<int, int, int> searchBubble;
 
     // map 저장
     public event Action<int, int, int, int, GameObject[,]> saveMap;
 
-    public event Func<List<string>> getButtomLineList;
+    // 하단 버블 이름 리스트 전달
+    public event Func<List<string>> getBottomLineList;
+
+    // 버블 풀 포기화
+    public event Action initBubblePool;
+
+    // 맵 초기화
+    public event Action initMap;
 
     public GameObject OnGetBubble(string key, Vector3 position)
     {
@@ -56,9 +67,14 @@ public class EventManager : MonoSingleton<EventManager>
         return setBubblePosition.Invoke(bubble);
     }
 
-    public void OnRemoveBubble(GameObject bubble)
+    public void OnRemoveBubble(GameObject bubble, bool isNormalBubble = true)
     {
-        removeBubble?.Invoke(bubble);
+        removeBubble?.Invoke(bubble, isNormalBubble);
+    }
+
+    public void OnSearchBubble(int row, int column, int colorNum)
+    {
+        searchBubble?.Invoke(row, column, colorNum);
     }
 
     public void OnSaveMap(int maxRow, int maxColumn, int stageNumber, int mapNumber, GameObject[,] map)
@@ -66,8 +82,18 @@ public class EventManager : MonoSingleton<EventManager>
         saveMap?.Invoke(maxRow, maxColumn, stageNumber, mapNumber, map);
     }
 
-    public List<string> OnGetButtomLineList()
+    public List<string> OnGetBottomLineList()
     {
-        return getButtomLineList?.Invoke();
+        return getBottomLineList?.Invoke();
+    }
+
+    public void OnInitBubblePool()
+    {
+        initBubblePool?.Invoke();
+    }
+
+    public void OnInitMap()
+    {
+        initMap?.Invoke();
     }
 }
