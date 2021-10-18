@@ -19,31 +19,31 @@ public class GameManager : MonoSingleton<GameManager>
     private GameObject[] bubbles = null;
      
     // 화면 가로에 들어가야할 버블 수
-    private const int horizontalBubbleCount = 11;
+    private readonly int horizontalBubbleCount = 11;
     public int HorizontalBubbleCount {get{ return horizontalBubbleCount; }}
 
     // 화면 새로에 들어가야할 버블 수
-    private const int verticalBubbleCount = 15;
+    private readonly int verticalBubbleCount = 15;
     public int VerticalBubbleCount { get { return verticalBubbleCount; } }
 
     // 가로 화면 양 끝에서부터 경계선까지 들어가는 구슬 수
-    private const float verticalBaseLineBubbleCount = 1.5f;
+    private readonly float verticalBaseLineBubbleCount = 1.5f;
     public float VerticalBaseLineBubbleCount { get { return verticalBaseLineBubbleCount; } }
 
     // 터치영역 아래부터 경계선까지 들어가는 구슬 수
-    private const float horizontaBaseLineBubbleCount = 10f;
+    private readonly float horizontaBaseLineBubbleCount = 10f;
     public float HorizontalBaseLineBubbleCount { get { return horizontaBaseLineBubbleCount; } }
 
     // 맵에 구슬이 없을 때 한번에 가져오는 열 수
-    private const int noneBubbleDropCount = 8;
+    private readonly int noneBubbleDropCount = 8;
     public int NoneBubbleDropCount { get { return noneBubbleDropCount; } }
 
     // 구슬 생성 시 탐색할 열 수
-    private const int searchButtomRow = 4;
+    private readonly int searchButtomRow = 4;
     public int SearchButtomRow { get { return searchButtomRow; } }
 
     // 1 스테이지당 맵 갯수
-    private const int oneStageMapCount = 4;
+    private readonly int oneStageMapCount = 4;
     public int OneStageMapCount { get { return oneStageMapCount; } }
 
     private float calWidth;
@@ -65,6 +65,7 @@ public class GameManager : MonoSingleton<GameManager>
     // 이전 게임 상태
     private EnumGameState lastGameState;
 
+
     void Awake()
     { 
         gameState = EnumGameState.RELOAD;
@@ -77,6 +78,8 @@ public class GameManager : MonoSingleton<GameManager>
 
         InitTouchArea(windowLeftDownPoint.x, windowLeftDownPoint.y, windowRightUpPoint.x, windowRightUpPoint.y);
         InitBubbleSize();
+
+
     }
 
     // 터치 영역 초기화
@@ -100,6 +103,7 @@ public class GameManager : MonoSingleton<GameManager>
         {
             bubble.transform.localScale = new Vector3(1, 1, 1);
 
+            // 월드에 그려진 스프라이트 사이즈
             Vector3 size = bubble.GetComponent<SpriteRenderer>().bounds.size;
 
             bubble.transform.localScale = new Vector3(calWidth / size.x, calHeight / size.y, 1);
