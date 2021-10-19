@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MapManager : MonoBehaviour
+public class MapManager : MonoSingleton<MapManager>
 {
     private List<GameObject[,]> mapList = new List<GameObject[,]>();
 
@@ -33,6 +33,26 @@ public class MapManager : MonoBehaviour
     [SerializeField]
     private int mapNumber = 1;
 
+    // 화면 가로에 들어가야할 버블 수
+    private readonly int horizontalBubbleCount = 11;
+    public int HorizontalBubbleCount { get { return horizontalBubbleCount; } }
+
+    // 화면 새로에 들어가야할 버블 수
+    private readonly int verticalBubbleCount = 15;
+    public int VerticalBubbleCount { get { return verticalBubbleCount; } }
+
+    // 맵에 구슬이 없을 때 한번에 가져오는 열 수
+    private readonly int noneBubbleDropCount = 8;
+    public int NoneBubbleDropCount { get { return noneBubbleDropCount; } }
+
+    // 구슬 생성 시 탐색할 열 수
+    private readonly int searchButtomRow = 4;
+    public int SearchButtomRow { get { return searchButtomRow; } }
+
+    // 1 스테이지당 맵 갯수
+    private readonly int oneStageMapCount = 4;
+    public int OneStageMapCount { get { return oneStageMapCount; } }
+
     // 탐색 큐
     Queue<GameObject> searchQueue = new Queue<GameObject>();
     // 버블 제거 큐
@@ -44,15 +64,13 @@ public class MapManager : MonoBehaviour
 
     void Start()
     {
+        if(GameManager.Instance.isCreateMapMode)
+        {
+            return;
+        }
+
         InitMap();
 
-        EventManager.Instance.setBubblePosition += SetBubblePosition;
-        EventManager.Instance.removeBubble += RemoveBubbles;
-        EventManager.Instance.getBottomLineList += GetBottomLineList;
-        EventManager.Instance.searchBubble += SearchBubble;
-        EventManager.Instance.initMap += InitMap;
-
-        // test
         halfWidth = bubbleData.CalWidth * 0.5f;
         halfHeight = bubbleData.CalHeight * 0.5f;
         widthDifferent = halfWidth * 2;
@@ -61,10 +79,10 @@ public class MapManager : MonoBehaviour
 
     private void InitMap()
     {
-        maxRow = GameManager.Instance.VerticalBubbleCount;
-        maxColumn = GameManager.Instance.HorizontalBubbleCount;
+        maxRow = verticalBubbleCount;
+        maxColumn = horizontalBubbleCount;
 
-        for(int i = 0; i < GameManager.Instance.OneStageMapCount; i++)
+        for(int i = 0; i < oneStageMapCount; i++)
         {
             var currentMap = new GameObject[maxRow, maxColumn];
             GetComponent<MapJson>().LoadMap(maxRow, maxColumn, stageNumber, mapNumber + i, ref currentMap);
@@ -73,12 +91,12 @@ public class MapManager : MonoBehaviour
     }
 
     // 구슬 위치 설정
-    private Vector3 SetBubblePosition(GameObject bubble)
+    public Vector3 SetBubblePosition(GameObject bubble)
     {
         Vector3 bubblePosition = bubble.transform.position;
 
-        float touchAreaX = GameManager.Instance.TouchArea.x;
-        float touchAreaHeigh = GameManager.Instance.TouchArea.height;
+        float touchAreaX = InputManager.Instance.TouchArea.x;
+        float touchAreaHeigh = InputManager.Instance.TouchArea.height;
 
         // 구슬 위치에 따른 행과 열 계산
         int row = (int)((touchAreaHeigh - bubblePosition.y) / heightDifferent);
@@ -95,7 +113,7 @@ public class MapManager : MonoBehaviour
             // 홀수 행
             column = (int)((bubblePosition.x - touchAreaX - halfWidth) / widthDifferent);
 
-            if(column == GameManager.Instance.HorizontalBubbleCount - 1)
+            if(column == horizontalBubbleCount - 1)
             {
                 column--;
             }
@@ -125,7 +143,7 @@ public class MapManager : MonoBehaviour
     }
 
     // 버블 제거
-    private void RemoveBubbles(GameObject bubble, bool isNormalBubble = true)
+    public void RemoveBubbles(GameObject bubble, bool isNormalBubble = true)
     {
         if(isNormalBubble)
         {
@@ -142,7 +160,7 @@ public class MapManager : MonoBehaviour
         }
         else
         {
-            EventManager.Instance.OnGiveBubble(bubble);
+            BubbleManager.Instance.ReturnBubble(bubble);
         }
 
         while (removeQueue.Count != 0)
@@ -151,20 +169,15 @@ public class MapManager : MonoBehaviour
             DropBubbles(currentRemoveBubble);
             AllyBubble temp = currentRemoveBubble.GetComponent<AllyBubble>();
 
-            if(temp.Row == 0 && temp.Column == 0)
-            {
-                int a = 0;
-            }
-
             mapList[0][temp.Row, temp.Column] = null;
             temp.ChangeStateToWaiting();
             temp.InitBubble();
-            EventManager.Instance.OnGiveBubble(currentRemoveBubble);
+            BubbleManager.Instance.ReturnBubble(currentRemoveBubble);
         }
 
-        for(int i = 0; i < GameManager.Instance.VerticalBubbleCount; i++)
+        for(int i = 0; i < verticalBubbleCount; i++)
         {
-            for (int j = 0; j < GameManager.Instance.HorizontalBubbleCount; j++)
+            for (int j = 0; j < horizontalBubbleCount; j++)
             {
                 if(mapList[0][i, j] == null)
                 {
@@ -374,7 +387,7 @@ public class MapManager : MonoBehaviour
     }
 
     // 구슬 탐색
-    private void SearchBubble(int row, int column, int colorNum)
+    public void SearchBubble(int row, int column, int colorNum)
     {
         if(mapList[0][row, column] == null)
         {
@@ -561,8 +574,6 @@ public class MapManager : MonoBehaviour
         // 아무것도 없으면 8줄 가져오기
         if(isAllBubbleNull)
         {
-            int noneBubbleDropCount = GameManager.Instance.NoneBubbleDropCount;
-
             if(currentLine >= noneBubbleDropCount)
             {
                 for(int i = 0; i < noneBubbleDropCount; i++)
@@ -602,7 +613,7 @@ public class MapManager : MonoBehaviour
 
             for (int i = 0; i < _maxColumn; i++)
             {
-                int nextMapNumber = GameManager.Instance.OneStageMapCount - (currentLine - 1) / GameManager.Instance.VerticalBubbleCount - 1;
+                int nextMapNumber = oneStageMapCount - (currentLine - 1) / verticalBubbleCount - 1;
 
                 if(mapList[nextMapNumber][_maxRow, i] == null)
                 {
@@ -627,7 +638,7 @@ public class MapManager : MonoBehaviour
     }
 
     // 마지막에서 4번째까지 존재하는 버블 종류 서치
-    private List<string> GetBottomLineList()
+    public List<string> GetBottomLineList()
     {
         List<string> bottomLineBubbleName = new List<string>();
 
@@ -654,7 +665,7 @@ public class MapManager : MonoBehaviour
                     bottomRow = i;
                 }
 
-                if (bottomRow != -1 && i > bottomRow - GameManager.Instance.SearchButtomRow)
+                if (bottomRow != -1 && i > bottomRow - searchButtomRow)
                 {
                     if (!bottomLineBubbleName.Contains(mapList[0][i, j].name))
                     {

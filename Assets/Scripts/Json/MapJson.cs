@@ -10,26 +10,26 @@ public class MapJson : MonoBehaviour
     [Serializable]
     public struct CustomVector3
     {
-        public float x;
-        public float y;
-        public float z;
-        public float w;
+        public double x;
+        public double y;
+        public double z;
+        public double w;
 
         public Vector3 ToVector3()
         {
-            return new Vector3(x, y, z);
+            return new Vector3((float)x, (float)y, (float)z);
         }
 
         public Quaternion ToQuaternion()
         {
-            return new Quaternion(x, y, z, w);
+            return new Quaternion((float)x, (float)y, (float)z, (float)w);
         }
 
-        public CustomVector3(Vector3 vector3)
+        public CustomVector3(Vector3 vector3, int decimalPlaces = 6)
         {
-            x = vector3.x;
-            y = vector3.y;
-            z = vector3.z;
+            x = Math.Truncate(vector3.x * Mathf.Pow(10, decimalPlaces)) / Mathf.Pow(10, decimalPlaces);
+            y = Math.Truncate(vector3.y * Mathf.Pow(10, decimalPlaces)) / Mathf.Pow(10, decimalPlaces);
+            z = Math.Truncate(vector3.z * Mathf.Pow(10, decimalPlaces)) / Mathf.Pow(10, decimalPlaces);
             w = 0;
         }
 
@@ -95,14 +95,14 @@ public class MapJson : MonoBehaviour
 
                 bubbleJsonData.bubbleName = currentBubble.name;
                 var savePosition = currentBubble.transform.position + 
-                    (mapNumber - 1) * (GameManager.Instance.TouchArea.height - GameManager.Instance.TouchArea.y) * Vector3.up;
+                    (mapNumber - 1) * (InputManager.Instance.TouchArea.height - InputManager.Instance.TouchArea.y) * Vector3.up;
 
                 if(mapNumber > 1)
                 {
                     savePosition.z = -10;
                 }
 
-                bubbleJsonData.position = new CustomVector3(savePosition);
+                bubbleJsonData.position = new CustomVector3(savePosition, 3);
                 bubbleJsonData.row = i;
                 bubbleJsonData.column = j;
 
@@ -135,7 +135,7 @@ public class MapJson : MonoBehaviour
             int row = bubbles[i].row;
             int column = bubbles[i].column;
 
-            map[row, column] = EventManager.Instance.OnGetBubble(bubbles[i].bubbleName, bubbles[i].position.ToVector3());
+            map[row, column] = BubbleManager.Instance.GetBubble(bubbles[i].bubbleName, bubbles[i].position.ToVector3());
 
             map[row, column].GetComponent<Bubble>().Row = row;
             map[row, column].GetComponent<Bubble>().Column = column;
@@ -158,7 +158,7 @@ public class MapJson : MonoBehaviour
                 bubble.Row = 0;
                 bubble.Column = 0;
                 bubble.ChangeStateToWaiting();
-                EventManager.Instance.OnGiveBubble(map[i, j]);
+                BubbleManager.Instance.ReturnBubble(map[i, j]);
                 map[i, j] = null;
             }
         }

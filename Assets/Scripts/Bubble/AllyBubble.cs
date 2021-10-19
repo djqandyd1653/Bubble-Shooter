@@ -36,12 +36,12 @@ public class AllyBubble : Bubble
         {
             if (collision.gameObject.CompareTag("Bubble"))
             {
-                if (transform.position.y <= GameManager.Instance.TouchArea.y)
+                if (transform.position.y <= InputManager.Instance.TouchArea.y)
                 {
                     return;
                 }
 
-                transform.position = EventManager.Instance.OnSetBubblePosition(this.gameObject);
+                transform.position = MapManager.Instance.SetBubblePosition(this.gameObject);
                 state = AllyBubbleData.BubbleState.CONTACT;
             }
         }
@@ -63,7 +63,7 @@ public class AllyBubble : Bubble
         {
             if(dir.x < 0)
             {
-                destinationPositionX = GameManager.Instance.TouchArea.x + data.CalWidth / 2;
+                destinationPositionX = InputManager.Instance.TouchArea.x + data.CalWidth / 2;
 
                 if(transform.position.x <= destinationPositionX)
                 {
@@ -73,7 +73,7 @@ public class AllyBubble : Bubble
                 return;
             }
 
-            destinationPositionX = GameManager.Instance.TouchArea.width - data.CalWidth / 2;
+            destinationPositionX = InputManager.Instance.TouchArea.width - data.CalWidth / 2;
 
             if (transform.position.x >= destinationPositionX)
             {
@@ -87,15 +87,15 @@ public class AllyBubble : Bubble
     {
         if (state == AllyBubbleData.BubbleState.FIRE)
         {
-            if (transform.position.y - data.CalHeight * 0.5f >= GameManager.Instance.TouchArea.height)
+            if (transform.position.y - data.CalHeight * 0.5f >= InputManager.Instance.TouchArea.height)
             {
-                if (transform.position.y <= GameManager.Instance.TouchArea.y)
+                if (transform.position.y <= InputManager.Instance.TouchArea.y)
                 {
                     return;
                 }
 
                 state = AllyBubbleData.BubbleState.WAITING;
-                EventManager.Instance.OnGiveBubble(this.gameObject);
+                BubbleManager.Instance.ReturnBubble(this.gameObject);
             }
         }
     }
@@ -105,7 +105,7 @@ public class AllyBubble : Bubble
     {
         if (state == AllyBubbleData.BubbleState.CONTACT)
         {
-            EventManager.Instance.OnRemoveBubble(this.gameObject);
+            MapManager.Instance.RemoveBubbles(this.gameObject);
         }
     }
 

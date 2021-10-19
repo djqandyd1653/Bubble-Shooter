@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BubblePool : MonoBehaviour
+public class BubbleManager : MonoSingleton<BubbleManager>
 {
     [SerializeField]
     private GameObject[] bubblePrefabs = null;
@@ -11,10 +11,32 @@ public class BubblePool : MonoBehaviour
 
     void Start()
     {
+        InitBubbleSize();
         InitPoolManager();
-        EventManager.Instance.getBubble += GiveBubble;
-        EventManager.Instance.giveBubble += TakeBubble;
-        EventManager.Instance.initBubblePool += InitPoolManager;
+    }
+
+    private void InitBubbleSize()
+    {
+        Vector3 windowLeftDownPoint = Camera.main.ScreenToWorldPoint(Vector3.zero);
+        Vector3 windowRightUpPoint = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, 0));
+
+        float calWidth = (windowRightUpPoint.x - windowLeftDownPoint.x) / 11;
+        float calHeight = (windowRightUpPoint.y - windowLeftDownPoint.y - 660) / 14;
+
+        foreach (var bubble in bubblePrefabs)
+        {
+            bubble.transform.localScale = new Vector3(1, 1, 1);
+
+            // 월드에 그려진 스프라이트 사이즈
+            Vector3 size = bubble.GetComponent<SpriteRenderer>().bounds.size;
+
+            bubble.transform.localScale = new Vector3(calWidth / size.x, calHeight / size.y, 1);
+
+            // 버블의 크기 AllyBubbleData에 지정
+            AllyBubbleData allyBubbleData = bubble.GetComponent<AllyBubble>().data;
+            allyBubbleData.CalWidth = calWidth;
+            allyBubbleData.CalHeight = calHeight;
+        }
     }
 
     // 버블 풀 관리자 초기화
@@ -58,7 +80,7 @@ public class BubblePool : MonoBehaviour
     }
 
     // 버블 풀에서 내보내기
-    private GameObject GiveBubble(string key, Vector3 position)
+    public GameObject GetBubble(string key, Vector3 position)
     {
         var bubble = poolManager[key].Dequeue();
         bubble.SetActive(true);
@@ -73,7 +95,7 @@ public class BubblePool : MonoBehaviour
     }
 
     // 버블 풀로 가져오기
-    private void TakeBubble(GameObject bubbleObject)
+    public void ReturnBubble(GameObject bubbleObject)
     {
         string key = bubbleObject.name;
         bubbleObject.transform.position = transform.position;

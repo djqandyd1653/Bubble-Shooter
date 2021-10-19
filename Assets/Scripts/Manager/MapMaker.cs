@@ -40,14 +40,11 @@ public class MapMaker : MonoBehaviour
     private float halfWidth = 0;
     // 구슬 높이 절반
     private float halfHeight = 0;
-    // 0행 0열 인덱스의 x값과 y값
-    private float touchAreaX = 0;
-    private float touchAreaHeigh = 0;
 
     void Start()
     {
-        maxRow = GameManager.Instance.VerticalBubbleCount;
-        maxColumn = GameManager.Instance.HorizontalBubbleCount;
+        maxRow = MapManager.Instance.VerticalBubbleCount;
+        maxColumn = MapManager.Instance.HorizontalBubbleCount;
 
         map = new GameObject[maxRow, maxColumn];
 
@@ -56,8 +53,8 @@ public class MapMaker : MonoBehaviour
         halfHeight = bubbles[0].GetComponent<AllyBubble>().data.CalHeight * 0.5f;
         widthDifferent = halfWidth * 2;
         heightDifferent = Mathf.Sqrt(3) * halfHeight;
-        touchAreaX = GameManager.Instance.TouchArea.x;
-        touchAreaHeigh = GameManager.Instance.TouchArea.height;
+        
+        
     }
 
     void Update()
@@ -102,6 +99,10 @@ public class MapMaker : MonoBehaviour
     // 위치값으로 행렬 결정
     private void SetMatrix(out int row, out int column, Vector3 mousePosition)
     {
+        // 0행 0열 인덱스의 x값과 y값
+        float touchAreaX = InputManager.Instance.TouchArea.x;
+        float touchAreaHeigh = InputManager.Instance.TouchArea.height;
+
         row = (int)((touchAreaHeigh - mousePosition.y) / heightDifferent);
 
         if (row % 2 != mapNumber % 2)
@@ -112,7 +113,7 @@ public class MapMaker : MonoBehaviour
         {
             column = (int)((mousePosition.x - touchAreaX - halfWidth) / widthDifferent);
 
-            if (column == GameManager.Instance.HorizontalBubbleCount - 1)
+            if (column == MapManager.Instance.HorizontalBubbleCount - 1)
             {
                 column--;
             }
@@ -122,6 +123,10 @@ public class MapMaker : MonoBehaviour
     // 행렬값으로 위치 반환
     private Vector3 SetPosition(int row, int column)
     {
+        // 0행 0열 인덱스의 x값과 y값
+        float touchAreaX = InputManager.Instance.TouchArea.x;
+        float touchAreaHeigh = InputManager.Instance.TouchArea.height;
+
         float x = touchAreaX + (1 + 2 * column) * halfWidth;
         float y = touchAreaHeigh - halfHeight - row * heightDifferent;
 

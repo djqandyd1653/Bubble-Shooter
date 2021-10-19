@@ -13,22 +13,21 @@ public class Shooter : MonoBehaviour
     [SerializeField]
     private GameObject readyBubble;
 
+    LineSetter lineSetter = null;
+
     Vector3 lineVector = Vector3.zero;
     Vector3 lineVector2 = Vector3.zero;
     Vector3 lineDir = Vector3.zero;
 
-    //////////// Test var
     [SerializeField]
-    private Vector3 test_Position; 
-    //////////////
+    private Transform readyTransform = null;
 
     private void Start()
     {
-        EventManager.Instance.OnSetCurveCount(0);
-        test_Position = new Vector3(GameManager.Instance.TouchArea.width - 50, transform.position.y, 0);
+        lineSetter = GetComponent<LineSetter>();
     }
 
-    private void Update()
+    private void LateUpdate()
     {
         Aim();
         Fire();
@@ -50,7 +49,7 @@ public class Shooter : MonoBehaviour
             mousePosition.z = 0;
 
             // 마우스가 터치영역 밖이면 예외처리
-            if(!GameManager.Instance.IsMouseInTouchArea(mousePosition))
+            if(!InputManager.Instance.IsMouseInTouchArea(mousePosition))
             {
                 return;
             }
@@ -59,8 +58,8 @@ public class Shooter : MonoBehaviour
             lineDir = (mousePosition - transform.position).normalized;
 
             // 터치영역과 발사 기준선 캐싱
-            Rect TouchArea = GameManager.Instance.TouchArea;
-            Rect baseLine = GameManager.Instance.BaseLine;
+            Rect TouchArea = InputManager.Instance.TouchArea;
+            Rect baseLine = InputManager.Instance.BaseLine;
 
             // y값이 고정일 때 x값의 변화량
             float x = (baseLine.height - transform.position.y) * lineDir.x / lineDir.y;
@@ -74,14 +73,13 @@ public class Shooter : MonoBehaviour
             if (isMousePosXMinus)
             {
                 lineVector = new Vector3(x, baseLine.height, 0);
-                EventManager.Instance.OnSetLinePosition(transform.position, lineVector);
+                lineSetter.SetLinePosition(transform.position, lineVector);
                 return;
             }
 
             lineVector = new Vector3(touchAreaX, lineDir.y * touchAreaX / lineDir.x + transform.position.y, 0);
             lineVector2 = new Vector3(baseLineX, -lineDir.y / lineDir.x * (baseLineX - lineVector.x) + lineVector.y, 0);
-
-            EventManager.Instance.OnSetLinePosition(transform.position, lineVector, lineVector2);
+            lineSetter.SetLinePosition(transform.position, lineVector, lineVector2);
         }
     }
 
@@ -99,9 +97,9 @@ public class Shooter : MonoBehaviour
             mousePosition.z = 0;
 
             // 라인렌더러 그리지 않기
-            EventManager.Instance.OnSetCurveCount(0);
+            lineSetter.SetCurveCount(0);
 
-            if (!GameManager.Instance.IsMouseInTouchArea(mousePosition))
+            if (!InputManager.Instance.IsMouseInTouchArea(mousePosition))
             {
                 GameManager.Instance.gameState = GameManager.EnumGameState.AIM;
                 return;
@@ -147,7 +145,7 @@ public class Shooter : MonoBehaviour
         List<string> bubblelist = new List<string>();
 
         // 맵 제작 이후 남은 방울 탐색 후 queue에 저장하는 식으로 변경
-        bubblelist = EventManager.Instance.OnGetBottomLineList();
+        bubblelist = MapManager.Instance.GetBottomLineList();
 
         // 랜덤 시스템
         int bubbleCount = bubblelist.Count;
@@ -159,7 +157,7 @@ public class Shooter : MonoBehaviour
 
         int randNum = UnityEngine.Random.Range(0, bubbleCount);
         string name = bubblelist[randNum];
-        bubble = EventManager.Instance.OnGetBubble(name, test_Position);
+        bubble = BubbleManager.Instance.GetBubble(name, readyTransform.position);
     }
 
     // 버블 바꾸기
@@ -171,13 +169,13 @@ public class Shooter : MonoBehaviour
         readyBubble = tempBubble;
 
         currBubble.transform.position = transform.position;
-        readyBubble.transform.position = test_Position;
+        readyBubble.transform.position = readyTransform.position;
     }
 
     public void SwapBubble(string name)
     {
-        var item = EventManager.Instance.OnGetBubble(name, transform.position);
-        EventManager.Instance.OnGiveBubble(currBubble);
+        var item = BubbleManager.Instance.GetBubble(name, transform.position);
+        BubbleManager.Instance.ReturnBubble(currBubble);
         currBubble = item;
     }
 

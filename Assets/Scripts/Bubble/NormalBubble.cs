@@ -21,14 +21,14 @@ public class NormalBubble : AllyBubble
     {
         if (state == AllyBubbleData.BubbleState.FIRE)
         {
-            if (transform.position.y + data.CalHeight * 0.5f >= GameManager.Instance.TouchArea.height)
+            if (transform.position.y + data.CalHeight * 0.5f >= InputManager.Instance.TouchArea.height)
             {
-                if (transform.position.y <= GameManager.Instance.TouchArea.y)
+                if (transform.position.y <= InputManager.Instance.TouchArea.y)
                 {
                     return;
                 }
 
-                transform.position = EventManager.Instance.OnSetBubblePosition(this.gameObject);
+                transform.position = MapManager.Instance.SetBubblePosition(this.gameObject);
                 state = AllyBubbleData.BubbleState.CONTACT;
             }
         }
@@ -41,10 +41,10 @@ public class NormalBubble : AllyBubble
         {
             rigid.MovePosition(transform.position + Vector3.down * data.DropSpeed * Time.smoothDeltaTime);
 
-            if (transform.position.y < GameManager.Instance.TouchArea.y)
+            if (transform.position.y < InputManager.Instance.TouchArea.y)
             {
                 state = AllyBubbleData.BubbleState.WAITING;
-                EventManager.Instance.OnGiveBubble(this.gameObject);
+                BubbleManager.Instance.ReturnBubble(this.gameObject);
             }
         }
     }

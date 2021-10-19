@@ -31,16 +31,16 @@ public class Rainbow : AllyBubble
             return;
         }
 
-        for (int i = 0; i < GameManager.Instance.VerticalBubbleCount; i++)
+        for (int i = 0; i < MapManager.Instance.VerticalBubbleCount; i++)
         {
-            for(int j = 0; j < GameManager.Instance.HorizontalBubbleCount; j++)
+            for(int j = 0; j < MapManager.Instance.HorizontalBubbleCount; j++)
             {
-                EventManager.Instance.OnSearchBubble(i, j, colorNumber);
+                MapManager.Instance.SearchBubble(i, j, colorNumber);
             }
         }
 
         state = AllyBubbleData.BubbleState.WAITING;
-        EventManager.Instance.OnRemoveBubble(this.gameObject, false);
+        MapManager.Instance.RemoveBubbles(this.gameObject, false);
     }
 
     protected override void OnTriggerEnter(Collider collision)
@@ -50,7 +50,7 @@ public class Rainbow : AllyBubble
         {
             if (collision.gameObject.CompareTag("Bubble"))
             {
-                if (transform.position.y <= GameManager.Instance.TouchArea.y)
+                if (transform.position.y <= InputManager.Instance.TouchArea.y)
                 {
                     return;
                 }
